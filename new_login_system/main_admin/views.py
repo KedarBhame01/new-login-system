@@ -33,26 +33,27 @@ def register_function(request):
 
 @api_view(['POST'])
 def login_function(request):
-    if request.method == 'POST':
-        email = request.data.get('email')
-        password = request.data.get('password')
+    email = request.data.get('email')
+    password = request.data.get('password')
+    
+    if not email or not password:
+        return Response({'success': False, 'message': 'Email and password are required.'}, status=400)
+    
+    try:
+        admin_user = admin.objects.get(email=email)
         
-        if not email or not password:
-            return Response({'success': False, 'message': 'Email and password required'}, status=400)
-        try:
-            tadmin = admin.objects.get(email=email)
-            if check_password(password, tadmin.password):
-                return Response({'success': True,
-                                'message': 'Login successful',
-                                'student':
-                                    {'id': tadmin.id,
-                                    'name':tadmin.name,
-                                    'email': tadmin.email
-                                    }
-                                }, status=200)
-            else:
-                return Response({'success': False, 'message': 'Invalid password'})
-        except admin.DoesNotExist:
-            return Response({'success': False, 'message': 'User not found.'}, status=404)
-    else:
-        return Response({'error': 'Only POST method are allowed.'}, status=405)
+        if check_password(password, admin_user.password):
+            return Response({
+                'success': True,
+                'message': 'Login successful.',
+                'admin': {
+                    'id': admin_user.id,
+                    'name': admin_user.name,
+                    'email': admin_user.email
+                }
+            }, status=200)
+        else:
+            return Response({'success': False, 'message': 'Invalid password.'}, status=401)
+    
+    except admin.DoesNotExist:
+        return Response({'success': False, 'message': 'User not found.'}, status=404)
