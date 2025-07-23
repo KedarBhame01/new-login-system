@@ -1,8 +1,11 @@
 from django.shortcuts import render
-from .serializers import admin_serializer
+from .serializers import admin_serializer, admin_login_serializer
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
+# from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from .models import admin
 
 # Create your views here.
@@ -14,6 +17,33 @@ def register_page(request):
 
 def dashboard_page(request):
     return render(request,'dashboard.html')
+
+class AdminLoginAPI(APIView):
+    # queryset = admin.objects.all()
+    serializer_class = admin_login_serializer
+    def post(self,request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            aemail = serializer.validated_data.get('aemail')
+            apassword = serializer.validated_data.get('apassword')
+
+            try:
+                admin_user = admin.objects.get(aemail=aemail)
+                
+                if admin_user.password == apassword:
+                    return Response({
+                        'message': 'valid User'}, status=status.HTTP_200_ok)
+                else:
+                    return Response({'message': 'Invalid password'}, status=status.HTTP_401_AUTHORIZED)
+        
+            except admin.DoesNotExist:
+                return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
 @api_view(['POST'])
 def register_function(request):
@@ -31,29 +61,28 @@ def register_function(request):
     else:
         return Response({'error': 'Only POST method is allowed.'}, status=405)
 
-@api_view(['POST'])
-def login_function(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    
-    if not email or not password:
-        return Response({'success': False, 'message': 'Email and password are required.'}, status=400)
-    
-    try:
-        admin_user = admin.objects.get(email=email)
+# @api_view(['POST'])
+# def login_function(request):
+#     serializer = admin_login_serializer
+#     if serializer.is_valid():
+#         aemail = serializer.validated_data.get('aemail')
+#         apassword = serializer.validated_data.get('apassword')
+
+#         # email = request.data.get('email')
+#         # password = request.data.get('password')
         
-        if check_password(password, admin_user.password):
-            return Response({
-                'success': True,
-                'message': 'Login successful.',
-                'admin': {
-                    'id': admin_user.id,
-                    'name': admin_user.name,
-                    'email': admin_user.email
-                }
-            }, status=200)
-        else:
-            return Response({'success': False, 'message': 'Invalid password.'}, status=401)
+#         # if not email or not password:
+#         #     return Response({'success': False, 'message': 'Email and password are required.'}, status=400)
     
-    except admin.DoesNotExist:
-        return Response({'success': False, 'message': 'User not found.'}, status=404)
+#         try:
+#             admin_user = admin.objects.get(aemail=aemail)
+            
+#             if admin_user.password == apassword:
+#                 return Response({
+#                     'message': 'valid User'}, status=status.HTTP_200_ok)
+#             else:
+#                 return Response({'message': 'Invalid password'}, status=status.HTTP_401_AUTHORIZED)
+    
+#         except admin.DoesNotExist:
+#             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#     return Response(serializer.errors, status=status.HTTP_401_BAD_REQUEST)

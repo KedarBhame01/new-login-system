@@ -5,3 +5,7 @@ class admin_serializer(serializers.ModelSerializer):
     class Meta:
         model = admin
         fields = '__all__'
+
+class admin_login_serializer(serializers.Serializer):
+    aemail = serializers.CharField(required=True)
+    apassword = serializers.CharField(required=True)
