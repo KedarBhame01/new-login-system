@@ -29,13 +29,13 @@ class AdminLoginAPI(APIView):
             apassword = serializer.validated_data.get('apassword')
 
             try:
-                admin_user = admin.objects.get(aemail=aemail)
+                admin_user = admin.objects.get(email=aemail)
                 
-                if admin_user.password == apassword:
-                    return Response({
-                        'message': 'valid User'}, status=status.HTTP_200_ok)
+                if check_password(apassword, admin_user.password):
+                    return Response({'success': True,
+                        'message': 'valid User'}, status=status.HTTP_200_OK)
                 else:
-                    return Response({'message': 'Invalid password'}, status=status.HTTP_401_AUTHORIZED)
+                    return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
         
             except admin.DoesNotExist:
                 return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
