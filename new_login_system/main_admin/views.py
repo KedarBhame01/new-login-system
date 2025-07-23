@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 # from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from .models import admin
 
 # Create your views here.
@@ -38,13 +39,28 @@ class AdminLoginAPI(APIView):
                     return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
         
             except admin.DoesNotExist:
-                return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# class Admin_API(ModelViewSet):
+#     queryset = admin.objects.all()
+#     serilizer_class = admin_serializer
 
-
-
-
+#     def create(self, request, *args, **kwargs):
+#         try:
+#             serializer = self.get_serializer(data=request.data)
+#             serializer.is_valid(raise_exception=True)
+#             serializer.save()
+#             api_response={'success': True, 'data': serializer.data, 'code': status.HTTP_201_CREATED,}
+#             return Response(api_response)
+#         except Exception as e:
+#             error_msg = 'An error occurred: {}'.format(str(e))
+#             error_response ={ 'success': False,
+#                              'code': status.HTTP_400_BAD_REQUEST,
+#                              'message': error_msg,
+#                              }
+#             return Response(error_response)
+        
 @api_view(['POST'])
 def register_function(request):
     if request.method == 'POST':
