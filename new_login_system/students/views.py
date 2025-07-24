@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from .models import Students
-# from main_admin.models import Admins
+from main_admin.models import Admins
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -60,7 +60,7 @@ class StudentLoginAPI(APIView):
                 password = serializer.validated_data.get('password')
 
                 try:
-                    admin_user = Students.objects.get(email=email)
+                    admin_user = Admins.objects.get(email=email)
                     
                     if check_password(password, admin_user.password):
                         # return Response({'success': True,
@@ -69,7 +69,7 @@ class StudentLoginAPI(APIView):
                     else:
                         return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
             
-                except Students.DoesNotExist:
+                except Admins.DoesNotExist:
                     return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
             else :
                 return Response({'message': 'Invalid type select "admin" or "student"'},)
