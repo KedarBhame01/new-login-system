@@ -8,9 +8,14 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from .models import admin
-
+# for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+#for jwt json web token
+import jwt
+from datetime import timedelta
+from django.utils import timezone
+from django.conf import settings
 
 # Create your views here.
 def login_page(request):
@@ -38,14 +43,32 @@ class AdminLoginAPI(APIView):
                 admin_user = admin.objects.get(email=email)
                 
                 if check_password(password, admin_user.password):
-                    return Response({'success': True,
-                        'message': 'valid User'}, status=status.HTTP_200_OK)
+                    # return Response({'success': True,
+                    #     'message': 'valid User'}, status=status.HTTP_200_OK)
+                    return self.generate_token_response(admin_user)
                 else:
                     return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
         
             except admin.DoesNotExist:
                 return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def generate_token_response(self, admin_user):
+        now = timezone.now()
+        payload = {
+            'uid' : admin_user.id,
+            'email': admin_user.email,
+            'exp' : now +timedelta(days=1),
+            'iat' : now,
+        }
+        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+        return Response({
+            'success': True,
+            'message': 'Login successful',
+            'id': admin_user.id,
+            'email': admin_user.email,
+            'token': token,
+        },status=status.HTTP_200_OK, headers={'Authorization':f'bearer{token}'})
 
 class Admin_API(ModelViewSet):
     queryset = admin.objects.all()
@@ -114,3 +137,4 @@ class Admin_API(ModelViewSet):
 #         except admin.DoesNotExist:
 #             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 #     return Response(serializer.errors, status=status.HTTP_401_BAD_REQUEST)
+
