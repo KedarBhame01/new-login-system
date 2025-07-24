@@ -42,40 +42,47 @@ class AdminLoginAPI(APIView):
                 return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class Admin_API(ModelViewSet):
-#     queryset = admin.objects.all()
-#     serilizer_class = admin_serializer
+class Admin_API(ModelViewSet):
+    queryset = admin.objects.all()
+    serializer_class = admin_serializer
 
-#     def create(self, request, *args, **kwargs):
-#         try:
-#             serializer = self.get_serializer(data=request.data)
-#             serializer.is_valid(raise_exception=True)
-#             serializer.save()
-#             api_response={'success': True, 'data': serializer.data, 'code': status.HTTP_201_CREATED,}
-#             return Response(api_response)
-#         except Exception as e:
-#             error_msg = 'An error occurred: {}'.format(str(e))
-#             error_response ={ 'success': False,
-#                              'code': status.HTTP_400_BAD_REQUEST,
-#                              'message': error_msg,
-#                              }
-#             return Response(error_response)
-        
-@api_view(['POST'])
-def register_function(request):
-    if request.method == 'POST':
-        data = request.data.copy()
-        # Hashing the password before saving
-        if 'password' in data:
-            data['password'] = make_password(data['password'])
+    def create(self, request, *args, **kwargs):
+        try:
+            data = request.data.copy()
+            if 'password'in data:
+                data['password'] = make_password(data['password'])
 
-        serializer = admin_serializer(data=data)
-        if serializer.is_valid():
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({'success': True, 'data': serializer.data}, status=201)
-        return Response(serializer.errors, status=400)
-    else:
-        return Response({'error': 'Only POST method is allowed.'}, status=405)
+            api_response={'success': True, 
+                          'data': serializer.data, 
+                          'code': status.HTTP_201_CREATED,
+                          }
+            return Response(api_response)
+        except Exception as e:
+            error_msg = 'An error occurred: {}'.format(str(e))
+            error_response ={ 'success': False,
+                             'code': status.HTTP_400_BAD_REQUEST,
+                             'message': error_msg,
+                             }
+            return Response(error_response)
+        
+# @api_view(['POST'])
+# def register_function(request):
+#     if request.method == 'POST':
+#         data = request.data.copy()
+#         # Hashing the password before saving
+#         if 'password' in data:
+#             data['password'] = make_password(data['password'])
+
+#         serializer = admin_serializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({'success': True, 'data': serializer.data}, status=201)
+#         return Response(serializer.errors, status=400)
+#     else:
+#         return Response({'error': 'Only POST method is allowed.'}, status=405)
 
 # @api_view(['POST'])
 # def login_function(request):
