@@ -110,7 +110,7 @@
     </form>
     
     <div style="text-align: center; margin-top: 15px;">
-        <p>Already have an account? <a href="/main/login/" style="color: #007bff; text-decoration: none;">Login here</a></p>
+        <p>Already have an account? <a href="/student/login/" style="color: #007bff; text-decoration: none;">Login here</a></p>
     </div>
 </div>
 
@@ -136,7 +136,7 @@
 <script>
 // async function loadStudents() {
 //     try {
-//         const response = await fetch('/main/login_api/');
+//         const response = await fetch('/student/login_api/');
 //         const students = await response.json();
 
 //         const tableBody = document.getElementById('studentTableBody');
@@ -182,7 +182,7 @@ document.getElementById('studentForm').addEventListener('submit', async function
     };
 
     try {
-        const response = await fetch('/main/register_api/', {
+        const response = await fetch('/student/register_api/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

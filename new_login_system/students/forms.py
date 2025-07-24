@@ -1,9 +1,9 @@
 from django import forms
-from .models import admin
+from .models import Students
 
 class StudentForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     
     class Meta:
-        model = admin
+        model = Students
         fields = '__all__'

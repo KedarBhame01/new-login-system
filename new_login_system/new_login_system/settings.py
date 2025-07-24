@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main_admin',
+    'students',     #change from 'main_admin'
     'rest_framework',
     'drf_yasg',
 ]

@@ -102,12 +102,18 @@
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
         </div>
-        
+
+        <div class="form-group">
+            <input type="radio" id="admin" name="type" value="admin">
+            <label for="admin">admin</label>
+            <input type="radio" id="student" name="type" value="student">
+            <label for="student">student</label><br>
+        </div>
         <button type="submit">Login</button>
     </form>
     
     <div class="signup-link">
-        <p>Don't have an account? <a href="/main/register/">Sign up here</a></p>
+        <p>Don't have an account? <a href="/student/register/">Sign up here</a></p>
     </div>
 </div>
 
@@ -125,12 +131,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     const form = e.target;
     
     const data = {
+        type: form.type.value,
         email: form.email.value,
         password: form.password.value
     };
 
     try {
-        const response = await fetch('/main/login_api/', {
+        const response = await fetch('/student/login_api/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -146,9 +153,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             showMessage('Login successful! Redirecting...', 'success');
             
             // Redirect to dashboard after 1 second
-            setTimeout(() => {
-                window.location.href = '/main/dashboard/';
-            }, 1000);
+            // setTimeout(() => {
+            //     window.location.href = '/student/dashboard/';
+            // }, 1000);
         } else {
             showMessage(result.message || 'Login failed', 'error');
         }
