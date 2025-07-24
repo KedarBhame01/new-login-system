@@ -9,6 +9,9 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from .models import admin
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 # Create your views here.
 def login_page(request):
     return render(request, 'login.html')
@@ -20,19 +23,21 @@ def dashboard_page(request):
     return render(request,'dashboard.html')
 
 class AdminLoginAPI(APIView):
-    # queryset = admin.objects.all()
+    queryset = admin.objects.all()
     serializer_class = admin_login_serializer
+    
+    @swagger_auto_schema(request_body=admin_login_serializer)
     def post(self,request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            aemail = serializer.validated_data.get('aemail')
-            apassword = serializer.validated_data.get('apassword')
+            email = serializer.validated_data.get('email')
+            password = serializer.validated_data.get('password')
 
             try:
-                admin_user = admin.objects.get(email=aemail)
+                admin_user = admin.objects.get(email=email)
                 
-                if check_password(apassword, admin_user.password):
+                if check_password(password, admin_user.password):
                     return Response({'success': True,
                         'message': 'valid User'}, status=status.HTTP_200_OK)
                 else:
