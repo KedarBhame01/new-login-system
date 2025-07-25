@@ -161,7 +161,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             // Redirect to dashboard after 1 second
             setTimeout(() => {
                 window.location.href = '/student/dashboard/';
-            }, 3000);
+            }, 15000);
         } else {
             showMessage(result.message || 'Login failed', 'error');
         }

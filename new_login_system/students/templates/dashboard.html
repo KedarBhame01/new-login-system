@@ -15,6 +15,7 @@
 <script>
     function logout(){
         localStorage.removeItem('admin')
+        localStorage.clear();
         window.location.href = '/student/login/'
     }
 
