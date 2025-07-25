@@ -1,9 +1,13 @@
 from django.contrib import admin
-# from django.urls import path, include
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import NoticeViewSet
 # from . import views
-
+router = DefaultRouter()
+router.register(r'notices', NoticeViewSet, basename='notice')
 
 urlpatterns = [
+    path('',include(router.urls)),
 #     path('login/',views.login_page, name ='login_page'),
 #     path('register/',views.register_page, name ='register_page'),
 #     # path('register_api/',views.register_function, name='register_function'),
