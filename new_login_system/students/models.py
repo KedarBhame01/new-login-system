@@ -8,3 +8,7 @@ class Students(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def is_authenticated(self):
+        return True

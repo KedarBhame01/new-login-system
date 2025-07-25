@@ -18,42 +18,64 @@
         window.location.href = '/student/login/'
     }
 
-    document.getElementById('showNoticesBtn').addEventListener('click', async function () {
-    const token = localStorage.getItem('token');
-    const noticesContainer = document.getElementById('noticesContainer');
-    noticesContainer.innerHTML = 'Loading...';
+    
+    document.getElementById('showNoticesBtn').addEventListener('click', async function() {
+        const token = localStorage.getItem('token');
+        const container = document.getElementById('noticesContainer');
+        container.innerHTML = 'Loading notices...';
 
-    try {
-        const response = await fetch('/main_admin/show_notices/', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (response.status === 401) {
-            noticesContainer.innerHTML = '<div style="color:red;">Please login again.</div>';
-            // Optionally, redirect to login page
-            return;
-        }
-
-        const notices = await response.json();
-
-        if (Array.isArray(notices) && notices.length > 0) {
-            let html = '<ul>';
-            notices.forEach(notice => {
-                html += `<li><strong>${notice.title}</strong>: ${notice.content}</li>`;
+        try {
+            const response = await fetch('/main_admin/show_notices/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
-            html += '</ul>';
-            noticesContainer.innerHTML = html;
-        } else {
-            noticesContainer.innerHTML = 'No notices found.';
+
+            if (response.status === 401) {
+                container.innerHTML = '<span style="color:red;">Unauthorized. Please login again.</span>';
+                return;
+            }
+
+            if (!response.ok) {
+                container.innerHTML = `Error: ${response.statusText}`;
+                return;
+            }
+
+            const notices = await response.json();
+
+            if (!notices.length) {
+                container.innerHTML = 'No notices found.';
+                return;
+            }
+
+            // Build pretty cards
+            let html = '<div class="notice-list">';
+            notices.forEach(function(notice) {
+                // Adjust field names to match your backend response
+                html += `
+                    <div class="notice-card">
+                        <div class="notice-title">${notice.title}</div>
+                        <div class="notice-desc">${notice.description || notice.descrip || notice.desc || notice.desciption || ''}</div>
+                        <div class="notice-date">
+                            ${notice.created_at ? 
+                            new Date(notice.created_at).toLocaleString()
+                            : ''}
+                        </div>
+                        <br>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            container.innerHTML = 'Failed to fetch notices.';
+            console.error(error);
         }
-    } catch (error) {
-        noticesContainer.innerHTML = 'Error fetching notices.';
-    }
-});
+    });
 
 </script>
 </html>
