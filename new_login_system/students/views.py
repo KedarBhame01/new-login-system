@@ -14,8 +14,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # JWT authentication class
 
-from rest_framework.permissions import IsAuthenticated
-from ..main_admin.authentication import JWTAuthentication
+# from rest_framework.permissions import IsAuthenticated
+# from ..main_admin.authentication import JWTAuthentication
 
 #for jwt json web token
 import jwt

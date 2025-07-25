@@ -9,6 +9,7 @@ router.register(r'notices', NoticeViewSet, basename='notice')
 urlpatterns = [
     path('',include(router.urls)),
     path('register_api/',Admin_API.as_view({'post':'create'})), 
+    path('show_notices/',Admin_API.as_view({'get':'list'})),
 #     path('login/',views.login_page, name ='login_page'),
 #     path('register/',views.register_page, name ='register_page'),
 #     # path('register_api/',views.register_function, name='register_function'),

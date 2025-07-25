@@ -159,9 +159,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             showMessage('Login successful! Redirecting...', 'success');
             
             // Redirect to dashboard after 1 second
-            // setTimeout(() => {
-            //     window.location.href = '/student/dashboard/';
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = '/student/dashboard/';
+            }, 3000);
         } else {
             showMessage(result.message || 'Login failed', 'error');
         }

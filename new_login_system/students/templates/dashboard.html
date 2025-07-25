@@ -8,11 +8,52 @@
 <body>
     <h1>Inside Dashboard</h1>
     <button Onclick="logout()">Logout</button>
+    <button id="showNoticesBtn">Show Notices</button>
+    <div id="noticesContainer" style="margin-top: 20px;"></div>
+
 </body>
 <script>
     function logout(){
         localStorage.removeItem('admin')
         window.location.href = '/student/login/'
     }
+
+    document.getElementById('showNoticesBtn').addEventListener('click', async function () {
+    const token = localStorage.getItem('token');
+    const noticesContainer = document.getElementById('noticesContainer');
+    noticesContainer.innerHTML = 'Loading...';
+
+    try {
+        const response = await fetch('/main_admin/show_notices/', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.status === 401) {
+            noticesContainer.innerHTML = '<div style="color:red;">Please login again.</div>';
+            // Optionally, redirect to login page
+            return;
+        }
+
+        const notices = await response.json();
+
+        if (Array.isArray(notices) && notices.length > 0) {
+            let html = '<ul>';
+            notices.forEach(notice => {
+                html += `<li><strong>${notice.title}</strong>: ${notice.content}</li>`;
+            });
+            html += '</ul>';
+            noticesContainer.innerHTML = html;
+        } else {
+            noticesContainer.innerHTML = 'No notices found.';
+        }
+    } catch (error) {
+        noticesContainer.innerHTML = 'Error fetching notices.';
+    }
+});
+
 </script>
 </html>

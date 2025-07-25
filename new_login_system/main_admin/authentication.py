@@ -2,7 +2,7 @@ from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
 from django.conf import settings
-from ..students.models import Students
+from students.models import Students
 from main_admin.models import Admins
 
 class JWTAuthentication(BaseAuthentication):

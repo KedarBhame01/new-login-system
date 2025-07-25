@@ -26,6 +26,10 @@ class NoticeViewSet(viewsets.ModelViewSet):
 class Admin_API(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
+    
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
     @swagger_auto_schema(request_body=Admins_serializer)
     def create(self, request, *args, **kwargs):
         try:
