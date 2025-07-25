@@ -149,7 +149,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         
         if (response.ok && result.success) {
             // Store student info in localStorage
-            localStorage.setItem('student', JSON.stringify(result.student));
+            // localStorage.setItem('student', JSON.stringify(result.student));
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('user', JSON.stringify({
+                id: result.id,
+                email: result.email,
+                type: form.type.value
+            }));
             showMessage('Login successful! Redirecting...', 'success');
             
             // Redirect to dashboard after 1 second

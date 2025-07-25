@@ -12,11 +12,21 @@ from main_admin.models import Admins
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+# JWT authentication class
+
+from rest_framework.permissions import IsAuthenticated
+from ..main_admin.authentication import JWTAuthentication
+
 #for jwt json web token
 import jwt
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
+
+
+
+# authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
 
 # Create your views here.
 def login_page(request):
@@ -96,6 +106,8 @@ class StudentLoginAPI(APIView):
 class student_API(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_serializer
+
+    
     @swagger_auto_schema(request_body=student_serializer)
     def create(self, request, *args, **kwargs):
         try:
@@ -118,6 +130,11 @@ class student_API(ModelViewSet):
                              'message': error_msg,
                              }
             return Response(error_response)
+        
+
+    def list(self, request, *args, **kwargs):
+        # Access current user: request.user
+        return super().list(request, *args, **kwargs)
         
 # @api_view(['POST'])
 # def register_function(request):

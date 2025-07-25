@@ -12,9 +12,16 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # Create your views here.
 
+# jwt for each function
+from rest_framework.permissions import IsAuthenticated
+from .authentication import JWTAuthentication
+
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
     serializer_class = notices_serializer
+
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
     
 class Admin_API(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
