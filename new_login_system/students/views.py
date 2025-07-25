@@ -96,7 +96,7 @@ class StudentLoginAPI(APIView):
 class student_API(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_serializer
-
+    @swagger_auto_schema(request_body=student_serializer)
     def create(self, request, *args, **kwargs):
         try:
             data = request.data.copy()
