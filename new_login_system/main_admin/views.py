@@ -16,6 +16,8 @@ from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
 from students.authentication import JWTAuthentication
 
+from .permissions import IsAdminOrReadOnly
+
 # def verify_token(request):
 #     data = request.json
 #     token = data.get('token')
@@ -28,7 +30,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
     serializer_class = notices_serializer
 
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAdminOrReadOnly]
     
 class Admin_API(viewsets.ModelViewSet):
     queryset = Admins.objects.all()

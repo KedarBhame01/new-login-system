@@ -14,13 +14,16 @@ class JWTAuthentication(BaseAuthentication):
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
             user_id = payload['id']
+            user_type = payload['user_type']
 
             # Try to get the user (either Student or Admin)
-            try:
-                user = Students.objects.get(id=user_id)
-            except Students.DoesNotExist:
+            if user_type == 'admin':
                 user = Admins.objects.get(id=user_id)
 
+            elif user_type == 'student':
+                user = Students.objects.get(id=user_id)
+            else:
+                raise AuthenticationFailed('User does not exist')
             return (user, token)
         except jwt.ExpiredSignatureError:
             raise AuthenticationFailed('Token expired')

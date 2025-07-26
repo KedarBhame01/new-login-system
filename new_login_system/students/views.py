@@ -122,6 +122,7 @@ class StudentLoginAPI(APIView):
         return Response({
             'success': True,
             'message': 'Login successful',
+            'user_type': ptype,
             'id': admin_user.id,
             'email': admin_user.email,
             'token': token,

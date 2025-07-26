@@ -214,7 +214,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 localStorage.setItem('user', JSON.stringify({
                     id: result.id,
                     email: result.email,
-                    type: form.type.value
+                    user_type: result.user_type.value
                 }));
                 sessionStorage.removeItem('token');
                 sessionStorage.removeItem('user');
