@@ -14,19 +14,12 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # JWT authentication class
 
-# from rest_framework.permissions import IsAuthenticated
-# from ..main_admin.authentication import JWTAuthentication
-
 #for jwt json web token
 import jwt
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 
-
-
-# authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
 
 # Create your views here.
 def login_page(request):

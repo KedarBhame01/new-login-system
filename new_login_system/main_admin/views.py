@@ -14,7 +14,7 @@ from drf_yasg import openapi
 
 # jwt for each function
 from rest_framework.permissions import IsAuthenticated
-from students.authentication import JWTAuthentication
+from .authentication import JWTAuthentication
 
 from .permissions import IsAdminOrReadOnly
 
