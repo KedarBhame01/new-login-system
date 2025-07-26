@@ -211,20 +211,20 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             // If "Save me" checked, use localStorage, else sessionStorage
             if (form.rememberMe.checked) {
                 localStorage.setItem('token', result.token);
-                localStorage.setItem('user', JSON.stringify({
-                    id: result.id,
-                    email: result.email,
-                    user_type: result.user_type.value
-                }));
+                // localStorage.setItem('user', JSON.stringify({
+                //     id: result.id,
+                //     email: result.email,
+                //     user_type: result.user_type.value
+                // }));
                 sessionStorage.removeItem('token');
                 sessionStorage.removeItem('user');
             } else {
                 sessionStorage.setItem('token', result.token);
-                sessionStorage.setItem('user', JSON.stringify({
-                    id: result.id,
-                    email: result.email,
-                    type: form.type.value
-                }));
+                // sessionStorage.setItem('user', JSON.stringify({
+                //     id: result.id,
+                //     email: result.email,
+                //     user_type: result.user_type.value
+                // }));
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
             }

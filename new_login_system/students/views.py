@@ -122,9 +122,9 @@ class StudentLoginAPI(APIView):
         return Response({
             'success': True,
             'message': 'Login successful',
-            'user_type': ptype,
-            'id': admin_user.id,
-            'email': admin_user.email,
+            # 'user_type': ptype,
+            # 'id': admin_user.id,
+            # 'email': admin_user.email,
             'token': token,
         },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
@@ -144,8 +144,9 @@ class student_API(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                          'data': serializer.data, 
-                          'code': status.HTTP_201_CREATED,
+                        # 'data': serializer.data, 
+                        'code': status.HTTP_201_CREATED,
+                        'message': 'Student register successfully,',
                           }
             return Response(api_response)
         except Exception as e:
