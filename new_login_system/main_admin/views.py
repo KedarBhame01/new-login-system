@@ -16,6 +16,13 @@ from drf_yasg import openapi
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
 
+def verify_token(request):
+    data = request.json
+    token = data.get('token')
+    if valid_token(token):
+        return Response[{'valid': True}]
+    else:
+        return Response[{'valid': False}]
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
     serializer_class = notices_serializer
