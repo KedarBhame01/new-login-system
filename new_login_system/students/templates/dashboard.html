@@ -16,14 +16,20 @@
     function logout(){
         localStorage.removeItem('admin')
         localStorage.clear();
+        
         window.location.href = '/student/login/'
     }
 
     
     document.getElementById('showNoticesBtn').addEventListener('click', async function() {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         const container = document.getElementById('noticesContainer');
         container.innerHTML = 'Loading notices...';
+
+        if(!token){
+            container.innerHTML = '<span style="color:red;">No token found. Please login again.</span>';
+            window.location.href = '/student/login';
+        }
 
         try {
             const response = await fetch('/main_admin/show_notices/', {

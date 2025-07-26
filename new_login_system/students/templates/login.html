@@ -30,7 +30,9 @@
             font-weight: bold;
             color: #555;
         }
-        input {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -83,6 +85,16 @@
         .signup-link a:hover {
             text-decoration: underline;
         }
+        .remember-group {
+            display: flex;
+            align-items: center;
+        }
+        .remember-group label {
+            display: inline;
+            margin-bottom: 0;
+            margin-left: 8px;
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
@@ -104,11 +116,17 @@
         </div>
 
         <div class="form-group">
-            <input type="radio" id="admin" name="type" value="admin">
-            <label for="admin">admin</label>
+            <input type="radio" id="admin" name="type" value="admin" required>
+            <label for="admin">Admin</label>
             <input type="radio" id="student" name="type" value="student">
-            <label for="student">student</label><br>
+            <label for="student">Student</label>
         </div>
+
+        <div class="form-group remember-group">
+            <input type="checkbox" id="rememberMe" name="rememberMe">
+            <label for="rememberMe">Save me</label>
+        </div>
+
         <button type="submit">Login</button>
     </form>
     
@@ -118,18 +136,41 @@
 </div>
 
 <script>
-function showMessage(text, type) {
+    // previous showmessage function
+// function showMessage(text, type) {
+//     const messageDiv = document.getElementById('message');
+//     messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+//     setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+// }
+
+function showMessage(text, type = '', autoClear = true) {
     const messageDiv = document.getElementById('message');
     messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-    setTimeout(() => {
-        messageDiv.innerHTML = '';
-    }, 3000);
+
+    if (autoClear) {
+        setTimeout(() => { messageDiv.innerHTML = ''; }, 3000);
+    }
+}
+
+// Check for token in localStorage or sessionStorage
+const hasToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+    if (hasToken) {
+        // Already logged in - redirect to dashboard after 1 sec
+         let countdown = 10;
+    const countdownInterval = setInterval(() => {
+        showMessage(`You are authenticated. Redirecting in ${countdown} sec`, 'success', false);
+        countdown--;
+
+        if (countdown < 0) {
+            clearInterval(countdownInterval);
+            window.location.href = '/student/dashboard/';
+        }
+    }, 1000);
 }
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const form = e.target;
-    
     const data = {
         type: form.type.value,
         email: form.email.value,
@@ -139,26 +180,34 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     try {
         const response = await fetch('/student/login_api/', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
         });
 
         const result = await response.json();
-        
+
         if (response.ok && result.success) {
-            // Store student info in localStorage
-            // localStorage.setItem('student', JSON.stringify(result.student));
-            localStorage.setItem('token', result.token);
-            localStorage.setItem('user', JSON.stringify({
-                id: result.id,
-                email: result.email,
-                type: form.type.value
-            }));
+            // If "Save me" checked, use localStorage, else sessionStorage
+            if (form.rememberMe.checked) {
+                localStorage.setItem('token', result.token);
+                localStorage.setItem('user', JSON.stringify({
+                    id: result.id,
+                    email: result.email,
+                    type: form.type.value
+                }));
+                sessionStorage.removeItem('token');
+                sessionStorage.removeItem('user');
+            } else {
+                sessionStorage.setItem('token', result.token);
+                sessionStorage.setItem('user', JSON.stringify({
+                    id: result.id,
+                    email: result.email,
+                    type: form.type.value
+                }));
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
             showMessage('Login successful! Redirecting...', 'success');
-            
-            // Redirect to dashboard after 1 second
             setTimeout(() => {
                 window.location.href = '/student/dashboard/';
             }, 15000);
