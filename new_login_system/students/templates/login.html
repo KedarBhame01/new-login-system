@@ -192,7 +192,7 @@ if (token) {
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const form = e.target;
-    const data = {
+    const form_data = {
         type: form.type.value,
         email: form.email.value,
         password: form.password.value
@@ -202,7 +202,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         const response = await fetch('/student/login_api/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
+            body: JSON.stringify(form_data),
         });
 
         const result = await response.json();

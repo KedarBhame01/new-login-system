@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .serializers import student_serializer, student_login_serializer
+from .serializers import StudentSerializer, student_login_serializer
 from django.contrib.auth.hashers import make_password, check_password
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -63,35 +63,35 @@ class StudentLoginAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            ptype = serializer.validated_data.get('type')
-            if ptype == 'student':
+            user_type = serializer.validated_data.get('type')
+            if user_type == 'student':
                 email = serializer.validated_data.get('email')
                 password = serializer.validated_data.get('password')
 
                 try:
-                    admin_user = Students.objects.get(email=email)
+                    user = Students.objects.get(email=email)
                     
-                    if check_password(password, admin_user.password):
+                    if check_password(password, user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(admin_user, ptype)
+                        return self.generate_token_response(user, user_type)
                     else:
                         return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
             
                 except Students.DoesNotExist:
                     return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
-            elif ptype == 'admin':
+            elif user_type == 'admin':
                 # return Response({'message': 'cheack admin or not'},)
                 email = serializer.validated_data.get('email')
                 password = serializer.validated_data.get('password')
 
                 try:
-                    admin_user = Admins.objects.get(email=email)
+                    user = Admins.objects.get(email=email)
                     
-                    if check_password(password, admin_user.password):
+                    if check_password(password, user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(admin_user, ptype)
+                        return self.generate_token_response(user, user_type)
                     else:
                         return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -102,12 +102,12 @@ class StudentLoginAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def generate_token_response(self, admin_user, ptype):
+    def generate_token_response(self, user, user_type):
         now = timezone.now()
         payload = {
-            'user_type': ptype,
-            'id' : admin_user.id,
-            'email': admin_user.email,
+            'user_type': user_type,
+            'id' : user.id,
+            'email': user.email,
             'exp' : int((now +timedelta(days=1)).timestamp()),
             'iat' : int(now.timestamp()),
         }
@@ -115,29 +115,29 @@ class StudentLoginAPI(APIView):
         return Response({
             'success': True,
             'message': 'Login successful',
-            # 'user_type': ptype,
-            # 'id': admin_user.id,
-            # 'email': admin_user.email,
+            # 'user_type': user_type,
+            # 'id': user.id,
+            # 'email': user.email,
             'token': token,
         },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
 class student_API(ModelViewSet):
     queryset = Students.objects.all()
-    serializer_class = student_serializer
+    serializer_class = StudentSerializer
 
     
-    @swagger_auto_schema(request_body=student_serializer)
+    @swagger_auto_schema(request_body=StudentSerializer)
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data.copy()
-            if 'password'in data:
-                data['password'] = make_password(data['password'])
+            request_data = request.data.copy()
+            if 'password'in request_data:
+                request_data['password'] = make_password(request_data['password'])
 
-            serializer = self.get_serializer(data=data)
+            serializer = self.get_serializer(data=request_data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                        # 'data': serializer.data, 
+                        # 'data': serializer.request_data, 
                         'code': status.HTTP_201_CREATED,
                         'message': 'Student register successfully,',
                           }
@@ -154,46 +154,3 @@ class student_API(ModelViewSet):
     def list(self, request, *args, **kwargs):
         # Access current user: request.user
         return super().list(request, *args, **kwargs)
-        
-# @api_view(['POST'])
-# def register_function(request):
-#     if request.method == 'POST':
-#         data = request.data.copy()
-#         # Hashing the password before saving
-#         if 'password' in data:
-#             data['password'] = make_password(data['password'])
-
-#         serializer = student_serializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'success': True, 'data': serializer.data}, status=201)
-#         return Response(serializer.errors, status=400)
-#     else:
-#         return Response({'error': 'Only POST method is allowed.'}, status=405)
-
-# @api_view(['POST'])
-# def login_function(request):
-#     serializer = student_login_serializer
-#     if serializer.is_valid():
-#         aemail = serializer.validated_data.get('aemail')
-#         apassword = serializer.validated_data.get('apassword')
-
-#         # email = request.data.get('email')
-#         # password = request.data.get('password')
-        
-#         # if not email or not password:
-#         #     return Response({'success': False, 'message': 'Email and password are required.'}, status=400)
-    
-#         try:
-#             admin_user = Students.objects.get(aemail=aemail)
-            
-#             if admin_user.password == apassword:
-#                 return Response({
-#                     'message': 'valid User'}, status=status.HTTP_200_ok)
-#             else:
-#                 return Response({'message': 'Invalid password'}, status=status.HTTP_401_AUTHORIZED)
-    
-#         except admin.DoesNotExist:
-#             return Response({'message': 'Invalid Credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-#     return Response(serializer.errors, status=status.HTTP_401_BAD_REQUEST)
-

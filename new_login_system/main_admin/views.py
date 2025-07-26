@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 from .models import Notices,Admins
-from .serializers import notices_serializer,Admins_serializer
+from .serializers import NoticeSerializerserializer,Admins_serializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -18,21 +18,14 @@ from .authentication import JWTAuthentication
 
 from .permissions import IsAdminOrReadOnly
 
-# def verify_token(request):
-#     data = request.json
-#     token = data.get('token')
-#     if valid_token(token):
-#         return Response[{'valid': True}]
-#     else:
-#         return Response[{'valid': False}]
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
-    serializer_class = notices_serializer
+    serializer_class = NoticeSerializerserializer
 
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAdminOrReadOnly]
     
-class Admin_API(viewsets.ModelViewSet):
+class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
     
@@ -42,15 +35,15 @@ class Admin_API(viewsets.ModelViewSet):
     @swagger_auto_schema(request_body=Admins_serializer)
     def create(self, request, *args, **kwargs):
         try:
-            data = request.data.copy()
-            if 'password'in data:
-                data['password'] = make_password(data['password'])
+            request_data = request.data.copy()
+            if 'password'in request_data:
+                request_data['password'] = make_password(request_data['password'])
 
-            serializer = self.get_serializer(data=data)
+            serializer = self.get_serializer(data=request_data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                          'data': serializer.data, 
+                          'data': serializer.request_data, 
                           'code': status.HTTP_201_CREATED,
                           }
             return Response(api_response)
