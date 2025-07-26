@@ -8,15 +8,22 @@
 <body>
     <h1>Inside Dashboard</h1>
     <button Onclick="logout()">Logout</button>
+    <button Onclick="main_logout()">main Logout</button>
     <button id="showNoticesBtn">Show Notices</button>
     <div id="noticesContainer" style="margin-top: 20px;"></div>
 
 </body>
 <script>
     function logout(){
+        sessionStorage.removeItem('admin')
+        sessionStorage.clear();
+
+        window.location.href = '/student/login/'
+    }
+    function main_logout(){
         localStorage.removeItem('admin')
         localStorage.clear();
-        
+
         window.location.href = '/student/login/'
     }
 

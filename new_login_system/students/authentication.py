@@ -13,7 +13,7 @@ class JWTAuthentication(BaseAuthentication):
 
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-            user_id = payload['uid']
+            user_id = payload['id']
 
             # Try to get the user (either Student or Admin)
             try:

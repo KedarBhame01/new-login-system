@@ -38,6 +38,29 @@ def register_page(request):
 def dashboard_page(request):
     return render(request,'dashboard.html')
 
+@api_view(['POST'])
+def verify_token(request):
+    token = request.data.get('token')
+    if not token:
+        return Response({'valid': False, 'message': 'Token not provided'}, status=400)
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('id')
+        user_type = payload.get('user_type')
+        if user_type == 'admin':
+            user = Admins.objects.get(id=user_id)
+
+        elif user_type == 'student':
+            user = Students.objects.get(id=user_id)
+
+        else:
+                return Response({'valid': False, 'message': 'User does not exist'}, status=401)
+        return Response({'valid': True, 'user_type': user_type, 'user_id': user_id})
+
+    except jwt.ExpiredSignatureError:
+        return Response({'valid': False, 'message': 'Token expired'})
+    except jwt.InvalidTokenError:
+        return Response({'valid': False, 'message': 'Invalid token'})
 class StudentLoginAPI(APIView):
     queryset = Students.objects.all()
     serializer_class = student_login_serializer
@@ -58,7 +81,7 @@ class StudentLoginAPI(APIView):
                     if check_password(password, admin_user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(admin_user)
+                        return self.generate_token_response(admin_user, ptype)
                     else:
                         return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -75,7 +98,7 @@ class StudentLoginAPI(APIView):
                     if check_password(password, admin_user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(admin_user)
+                        return self.generate_token_response(admin_user, ptype)
                     else:
                         return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
             
@@ -86,13 +109,14 @@ class StudentLoginAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def generate_token_response(self, admin_user):
+    def generate_token_response(self, admin_user, ptype):
         now = timezone.now()
         payload = {
-            'uid' : admin_user.id,
+            'user_type': ptype,
+            'id' : admin_user.id,
             'email': admin_user.email,
-            'exp' : now +timedelta(days=1),
-            'iat' : now,
+            'exp' : int((now +timedelta(days=1)).timestamp()),
+            'iat' : int(now.timestamp()),
         }
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
         return Response({
@@ -101,7 +125,7 @@ class StudentLoginAPI(APIView):
             'id': admin_user.id,
             'email': admin_user.email,
             'token': token,
-        },status=status.HTTP_200_OK, headers={'Authorization':f'bearer{token}'})
+        },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
 class student_API(ModelViewSet):
     queryset = Students.objects.all()

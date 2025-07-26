@@ -153,19 +153,40 @@ function showMessage(text, type = '', autoClear = true) {
 }
 
 // Check for token in localStorage or sessionStorage
-const hasToken = localStorage.getItem('token') || sessionStorage.getItem('token');
-    if (hasToken) {
-        // Already logged in - redirect to dashboard after 1 sec
-         let countdown = 10;
-    const countdownInterval = setInterval(() => {
-        showMessage(`You are authenticated. Redirecting in ${countdown} sec`, 'success', false);
-        countdown--;
+const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 
-        if (countdown < 0) {
-            clearInterval(countdownInterval);
-            window.location.href = '/student/dashboard/';
+if (token) {
+    fetch('/student/verify_token/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            // token is valid, start countdown & redirect
+            let countdown = 10;
+            const countdownInterval = setInterval(() => {
+                showMessage(`You are authenticated. Redirecting in ${countdown} sec`, 'success', false);
+                countdown--;
+                if (countdown < 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = '/student/dashboard/';
+                }
+            }, 1000);
+        } else {
+            // Token invalid or expired - remove it and stay on login page
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
+            showMessage('Session expired. Please login again.', 'error');
         }
-    }, 1000);
+    })
+    .catch(error => {
+        console.error('Error verifying token:', error);
+        // optionally handle network errors
+    });
 }
 
 document.getElementById('loginForm').addEventListener('submit', async function(e) {

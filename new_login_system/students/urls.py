@@ -4,6 +4,7 @@ from . import views
 
 
 urlpatterns = [
+    path('verify_token/',views.verify_token, name='verify_token'),
     path('login/',views.login_page, name ='login_page'),
     path('register/',views.register_page, name ='register_page'),
     # path('register_api/',views.register_function, name='register_function'),
