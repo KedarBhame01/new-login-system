@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .models import Notices,Admins
-from .serializers import NoticeSerializerserializer,Admins_serializer
+from .models import Notices, Admins, Attendance
+from .serializers import NoticeSerializerserializer,Admins_serializer, AttendanceSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -55,3 +55,13 @@ class AdminViewSet(viewsets.ModelViewSet):
                              'message': error_msg,
                              }
             return Response(error_response)
+        
+class AttendanceViewset(viewsets.ModelViewSet):
+    queryset = Attendance.objects.all()
+    serializer_class = AttendanceSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'students'):
+            return Attendance.objects.filter(student = user)
+        return super().get_queryset()
