@@ -115,10 +115,10 @@ class StudentLoginAPI(APIView):
         return Response({
             'success': True,
             'message': 'Login successful',
-            # 'user_type': user_type,
-            # 'id': user.id,
-            # 'email': user.email,
-            'token': token,
+            'user_type': user_type,
+            'id': user.id,
+            'email': user.email,
+            # 'token': token,
         },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
 class student_API(ModelViewSet):

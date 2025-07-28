@@ -22,15 +22,16 @@ class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
     serializer_class = NoticeSerializerserializer
 
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAdminOrReadOnly]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [IsAuthenticated]
     
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
     
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     @swagger_auto_schema(request_body=Admins_serializer)
     def create(self, request, *args, **kwargs):
