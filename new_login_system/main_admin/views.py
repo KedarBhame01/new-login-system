@@ -21,7 +21,6 @@ from .permissions import IsAdminOrReadOnly
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
     serializer_class = NoticeSerializerserializer
-
     # authentication_classes = [JWTAuthentication]
     # permission_classes = [IsAdminOrReadOnly]
     # permission_classes = [IsAuthenticated]
@@ -29,7 +28,6 @@ class NoticeViewSet(viewsets.ModelViewSet):
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
-    
     # authentication_classes = [JWTAuthentication]
     # permission_classes = [IsAuthenticated]
 
@@ -65,3 +63,46 @@ class AttendanceViewset(viewsets.ModelViewSet):
         if hasattr(user, 'students'):
             return Attendance.objects.filter(student = user)
         return super().get_queryset()
+    
+    
+    def list(self, request, *args, **kwargs):
+        try:
+            admin = Attendance.objects.all()
+            serializer = self.get_serializer(admin, many=True)
+            api_response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message':'All attendance',
+                'all_attendance': serializer.data
+            }
+            return Response(api_response)
+        except Exception as e:
+            error_msg = 'An error occurred while fetching records:{}'.format(str(e))
+            error_response ={
+                'status': 'error',
+                'code': status.HTTP_500_INTERNAL_SERVER_ERROR,
+                'message': error_msg,
+            }
+            return Response(error_response)
+    def create(self, request, *args, **kwargs):
+                    try:
+                              serializer = self.get_serializer(data=request.data)
+                              serializer.is_valid(raise_exception=True)
+                              serializer.save()
+                              api_response = {
+                                        'status': 'success',
+                                        'code': status.
+                                        ,
+                                        'message': 'Attendance added successfully',
+                                        'attendance': serializer.data,
+                              }
+                              return Response(api_response)
+                    except Exception as e:
+                              error_msg = 'An error occurred: {}'.format(str(e))
+                              error_response = {
+                                        'status': 'error',
+                                        'code': status.HTTP_400_BAD_REQUEST,
+                                        'message': error_msg,
+                              }
+                              return Response(error_response)
+    
