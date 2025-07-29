@@ -11,9 +11,19 @@ router1.register(r'attendance', AttendanceViewset, basename='attendance')
 urlpatterns = [
     # path('notices/',include(router.urls)),
     # path('attendance/', include(router1.urls)),
-    path('attendance/', AttendanceViewset.as_view({'get':'list'})),
-    path('attendance', AttendanceViewset.as_view({'post':'create'})),
-    path('register_api/',AdminViewSet.as_view({'post':'create'})), 
-    path('show_notices/',NoticeViewSet.as_view({'get':'list'})),
+    path('attendance/add/', AttendanceViewset.as_view({'post':'create'})),
+    path('attendance/all/', AttendanceViewset.as_view({'get':'list'})),
+    path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrive'})),
+    path('attendance/update/<int:pk>/', AttendanceViewset.as_view({'put':'update'})),
+    path('attendance/delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
+
+    path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
+    path('notice/all/', NoticeViewSet.as_view({'get':'list'})),
+    path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrive'})),
+    path('notice/update/<int:pk>/', NoticeViewSet.as_view({'put':'update'})),
+    path('notice/delete/<int:pk>/', NoticeViewSet.as_view({'delete':'destroy'})),
+
+    path('admin/add/',AdminViewSet.as_view({'post':'create'})), 
+    # path('all_notice/',NoticeViewSet.as_view({'get':'list'})),
 
 ]
