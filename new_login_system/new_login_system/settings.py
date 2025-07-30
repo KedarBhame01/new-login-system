@@ -81,10 +81,10 @@ WSGI_APPLICATION = 'new_login_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'new_login_system',
-        'USER': 'root',
+        'NAME': 'KedarBhame$new_login_system',
+        'USER': 'KedarBhame',
         'PASSWORD': '@Djangostar123',
-        'HOST':'localhost',
+        'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
         'PORT':'3306',
     }
 }
@@ -125,6 +125,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = '/home/KedarBhame/new-login-system/new_login_system/students/templates'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
