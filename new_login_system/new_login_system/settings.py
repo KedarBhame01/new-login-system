@@ -86,6 +86,7 @@ DATABASES = {
         'PASSWORD': '@Djangostar123',
         'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
         'PORT':'3306',
+        
     }
 }
 
