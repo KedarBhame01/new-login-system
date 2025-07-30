@@ -17,6 +17,7 @@ urlpatterns = [
     path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrieve'})),
     path('attendance/update/<int:pk>/', AttendanceViewset.as_view({'put':'update'})),
     path('attendance/delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
+    path('attendance/summery/', AttendanceViewset.as_view({'post':'attendance_summary'})),
 
     path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
     path('notice/all/', NoticeViewSet.as_view({'get':'list'})),

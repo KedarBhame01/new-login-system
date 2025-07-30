@@ -23,3 +23,11 @@ class AttendanceSerializer(serializers.ModelSerializer):
 
 class DateOnlySerializer(serializers.Serializer):
     date = serializers.DateField()
+
+class AttendanceSummaryInputSerializer(serializers.Serializer):
+    student_id = serializers.IntegerField(required=True)
+
+    class Meta:
+            model = Attendance
+            fields = 'student_id'
+            

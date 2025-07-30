@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'students',     #change from 'main_admin'
     'rest_framework',
     'drf_yasg',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -143,5 +144,6 @@ SWAGGER_SETTINGS = {
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'AUTHENTICATION_CLASSES': ('students.authentication.JWTAuthentication'),
 }
