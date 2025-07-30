@@ -13,13 +13,14 @@ urlpatterns = [
     # path('attendance/', include(router1.urls)),
     path('attendance/add/', AttendanceViewset.as_view({'post':'create'})),
     path('attendance/all/', AttendanceViewset.as_view({'get':'list'})),
-    path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrive'})),
+    path('attendance/by-date/', AttendanceViewset.as_view({'post':'by_date'})),
+    path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrieve'})),
     path('attendance/update/<int:pk>/', AttendanceViewset.as_view({'put':'update'})),
     path('attendance/delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
 
     path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
     path('notice/all/', NoticeViewSet.as_view({'get':'list'})),
-    path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrive'})),
+    path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrieve'})),
     path('notice/update/<int:pk>/', NoticeViewSet.as_view({'put':'update'})),
     path('notice/delete/<int:pk>/', NoticeViewSet.as_view({'delete':'destroy'})),
 

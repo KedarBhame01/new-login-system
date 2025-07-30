@@ -20,3 +20,6 @@ class AttendanceSerializer(serializers.ModelSerializer):
         model = Attendance
         fields = '__all__'
         read_only_fields = ['id', 'student_name', 'created_at']
+
+class DateOnlySerializer(serializers.Serializer):
+    date = serializers.DateField()

@@ -2,10 +2,14 @@ from django.shortcuts import render
 
 from rest_framework import viewsets
 from .models import Notices, Admins, Attendance
-from .serializers import NoticeSerializerserializer,Admins_serializer, AttendanceSerializer
+from .serializers import NoticeSerializerserializer,Admins_serializer, AttendanceSerializer, DateOnlySerializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
+# from rest_framework.decorators import api_view
+
+from rest_framework.decorators import action
+from django.utils.dateparse import parse_date
 
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -44,7 +48,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
             }
             return Response(error_response)
     
-    def retrive(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance)
@@ -161,6 +165,26 @@ class AttendanceViewset(viewsets.ModelViewSet):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer  
     
+    @swagger_auto_schema(
+        methods=['post'],
+        request_body=DateOnlySerializer,
+        responses={200: AttendanceSerializer(many=True)}
+    )
+    @action(detail=False, methods=['post'], url_path='by-date')
+    def by_date(self, request):
+        # now request.data only needs {"date": "YYYY-MM-DD"}
+        date_str = request.data.get('date')
+        if not date_str:
+            return Response({'error': 'date field missing'}, status=400)
+        date_obj = parse_date(date_str)
+        if not date_obj:
+            return Response(
+                {'error': 'Invalid date format. Use YYYY-MM-DD.'}, status=400
+            )
+        records = self.queryset.filter(date=date_obj)
+        serializer = self.get_serializer(records, many=True)
+        return Response(serializer.data, status=200)
+    
     def list(self, request, *args, **kwargs):
         try:
             admin = Attendance.objects.all()
@@ -181,7 +205,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
             }
             return Response(error_response)
     
-    def retrive(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance)
