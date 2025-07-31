@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from rest_framework.decorators import action
 from django.utils.dateparse import parse_date
-from drf_spectacular.utils import extend_schema
+# from drf_spectacular.utils import extend_schema
 
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -150,7 +150,7 @@ class AdminViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                          'data': serializer.request_data, 
+                          'data': request_data, 
                           'code': status.HTTP_201_CREATED,
                           }
             return Response(api_response)
