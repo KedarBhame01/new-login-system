@@ -150,7 +150,7 @@ class AdminViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                          'data': serializer.request_data, 
+                          'data': request_data, 
                           'code': status.HTTP_201_CREATED,
                           }
             return Response(api_response)
