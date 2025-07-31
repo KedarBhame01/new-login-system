@@ -31,7 +31,7 @@ class AttendanceSummaryInputSerializer(serializers.Serializer):
             model = Attendance
             fields = 'student_id'
 
-class CalenderSerializer(serializers.Serializer):
+class CalenderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Calender
         fields = '__all__'
