@@ -48,7 +48,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
                 'message': error_msg,
             }
             return Response(error_response)
-    
+
     def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -68,7 +68,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
                 'message': error_msg,
             }
             return Response(error_response)
-        
+
     def create(self, request, *args, **kwargs):
                     try:
                               serializer = self.get_serializer(data=request.data)
@@ -89,7 +89,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
                                         'message': error_msg,
                               }
                               return Response(error_response)
-                    
+
     def update(self, request, *args, **kwargs):
             try:
                 instance = self.get_object()
@@ -111,7 +111,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
                       'message': error_msg,
                 }
                 return Response(error_response)
-            
+
     def destroy(self, request, *args, **kwargs):
             try:
                 instance = self.get_object()
@@ -130,9 +130,9 @@ class NoticeViewSet(viewsets.ModelViewSet):
                       'message': error_msg,
                 }
                 return Response(error_response)
-    
 
-    
+
+
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
@@ -150,7 +150,7 @@ class AdminViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             api_response={'success': True, 
-                          'data': request_data, 
+                          'data': serializer.request_data, 
                           'code': status.HTTP_201_CREATED,
                           }
             return Response(api_response)
@@ -161,14 +161,14 @@ class AdminViewSet(viewsets.ModelViewSet):
                              'message': error_msg,
                              }
             return Response(error_response)
-        
+
 class AttendanceViewset(viewsets.ModelViewSet):
     queryset = Attendance.objects.all()
-    serializer_class = AttendanceSerializer  
-    
+    serializer_class = AttendanceSerializer
+
     # @extend_schema(
     #     request=AttendanceSummaryInputSerializer,
-       
+
     # )
     @swagger_auto_schema(
         methods=['post'],
@@ -198,7 +198,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
             'total_days': total_days,
             'message': f"Student {student_id} was present {present_days} out of {total_days} days "
         })
-    
+
     @swagger_auto_schema(
         methods=['post'],
         request_body=DateOnlySerializer,
@@ -218,7 +218,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
         records = self.queryset.filter(date=date_obj)
         serializer = self.get_serializer(records, many=True)
         return Response(serializer.data, status=200)
-    
+
     def list(self, request, *args, **kwargs):
         try:
             admin = Attendance.objects.all()
@@ -238,7 +238,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
                 'message': error_msg,
             }
             return Response(error_response)
-    
+
     def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
@@ -258,7 +258,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
                 'message': error_msg,
             }
             return Response(error_response)
-        
+
     def create(self, request, *args, **kwargs):
                     try:
                               serializer = self.get_serializer(data=request.data)
@@ -279,7 +279,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
                                         'message': error_msg,
                               }
                               return Response(error_response)
-                    
+
     def update(self, request, *args, **kwargs):
             try:
                 instance = self.get_object()
@@ -301,7 +301,7 @@ class AttendanceViewset(viewsets.ModelViewSet):
                       'message': error_msg,
                 }
                 return Response(error_response)
-            
+
     def destroy(self, request, *args, **kwargs):
             try:
                 instance = self.get_object()
@@ -320,4 +320,3 @@ class AttendanceViewset(viewsets.ModelViewSet):
                       'message': error_msg,
                 }
                 return Response(error_response)
-    
