@@ -1,16 +1,18 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import NoticeViewSet,AdminViewSet, AttendanceViewset
+from .views import NoticeViewSet,AdminViewSet, AttendanceViewset, CalenderViewSet
 # from . import views
-router = DefaultRouter()
-router.register(r'notices', NoticeViewSet, basename='notice')
-router1 = DefaultRouter()
-router1.register(r'attendance', AttendanceViewset, basename='attendance')
-
+# router = DefaultRouter()
+# router.register(r'notices', NoticeViewSet, basename='notice')
+# router1 = DefaultRouter()
+# router1.register(r'attendance', AttendanceViewset, basename='attendance')
+router2 = DefaultRouter()
+router2.register(r'calender', CalenderViewSet, basename='calender')
 urlpatterns = [
     # path('notices/',include(router.urls)),
     # path('attendance/', include(router1.urls)),
+    path('calender', include(router2.urls)),
     path('attendance/add/', AttendanceViewset.as_view({'post':'create'})),
     path('attendance/all/', AttendanceViewset.as_view({'get':'list'})),
     path('attendance/by-date/', AttendanceViewset.as_view({'post':'by_date'})),

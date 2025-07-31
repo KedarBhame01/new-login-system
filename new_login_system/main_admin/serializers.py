@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notices, Admins, Attendance
+from .models import Notices, Admins, Attendance, Calender
 
 class Admins_serializer(serializers.ModelSerializer):
     class Meta:
@@ -30,4 +30,8 @@ class AttendanceSummaryInputSerializer(serializers.Serializer):
     class Meta:
             model = Attendance
             fields = 'student_id'
-            
+
+class CalenderSerializer(serializers.Serializer):
+    class Meta:
+        model = Calender
+        fields = '__all__'

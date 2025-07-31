@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .models import Notices, Admins, Attendance
-from .serializers import NoticeSerializerserializer,Admins_serializer, AttendanceSerializer, DateOnlySerializer, AttendanceSummaryInputSerializer
+from .models import Notices, Admins, Attendance, Calender
+from .serializers import NoticeSerializerserializer,Admins_serializer, AttendanceSerializer, DateOnlySerializer, AttendanceSummaryInputSerializer, CalenderSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -22,6 +22,10 @@ from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
 
 from .permissions import IsAdminOrReadOnly
+
+class CalenderViewSet(viewsets.ModelViewSet):
+    queryset = Calender.objects.all()
+    serializer_class = CalenderSerializer
 
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notices.objects.all().order_by('-created_at')
