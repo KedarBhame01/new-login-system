@@ -5,7 +5,9 @@ class Students(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
-
+    j_date = models.DateField(default= "2004-10-09")
+    phone_no = models.IntegerField(default= 1234567890)
+    fees = models.IntegerField(default= 5000)
     def __str__(self):
         return self.name
     
