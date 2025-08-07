@@ -6,8 +6,12 @@ from . import views
 router = DefaultRouter()
 router.register(r'student_api', views.student_API, basename='student_api')
 
+router1 = DefaultRouter()
+router1.register(r'feeshistoryapi', views.FeeHistoryAPI, basename='feeshistoryapi')
+
 urlpatterns = [
      path('student/',include(router.urls)),
+     path('feehistoryapi/',include(router1.urls)),
     # path('verify_token/',views.verify_token, name='verify_token'),
     path('login/',views.login_page, name ='login_page'),
     path('register/',views.register_page, name ='register_page'),
@@ -16,6 +20,6 @@ urlpatterns = [
     # path('login_api/',views.login_function, name='login_function'),
     path('login_api/',views.StudentLoginAPI.as_view()),                           #using modelviewset
     path('dashboard/',views.dashboard_page, name='dashboard_page'),
-    path('fee-history/',views.FeeHistoryAPI.as_view({'get':'list'})),
+    # path('fees-history/',views.FeeHistoryAPI.as_view({'get':'list'})),
     path('pay-fees/',views.FeeHistoryAPI.as_view({'post':'pay_fees'})),
 ]

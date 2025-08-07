@@ -168,12 +168,25 @@ class FeeHistoryAPI(ModelViewSet):
     @action(detail=False, methods=['post'], url_path='pay-fees')
     def pay_fees(self, request):
         student_id = request.data.get('student_id')
-        amount     = request.data.get('amount')
-        remarks    = request.data.get('remarks', '')
+        try:
+            amount = int(request.data.get('amount', 0))
+        except (TypeError, ValueError):
+            return Response({
+                'success': False,
+                'message': 'Invalid amount.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        remarks = request.data.get('remarks', '')
+
         try:
             student = Students.objects.get(id=student_id)
         except Students.DoesNotExist:
-            return Response({'message': 'Student not found'}, status=404)
+            return Response({'message': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if amount > student.pending_fees:
+            return Response({
+                'success': False,
+                'message': f'Payment exceeds pending fees! Maximum allowed: {student.pending_fees}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         FeeHistory.objects.create(student_id=student, amount=amount, remarks=remarks)
         return Response({
