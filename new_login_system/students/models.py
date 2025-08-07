@@ -26,7 +26,7 @@ class Students(models.Model):
     def is_authenticated(self):
         return True
 class FeeHistory(models.Model):
-    student = models.ForeignKey(Students, on_delete=models.CASCADE)
+    student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
     amount = models.IntegerField()
     payment_date = models.DateTimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255, blank=True)

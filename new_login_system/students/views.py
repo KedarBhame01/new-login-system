@@ -175,7 +175,7 @@ class FeeHistoryAPI(ModelViewSet):
         except Students.DoesNotExist:
             return Response({'message': 'Student not found'}, status=404)
 
-        FeeHistory.objects.create(student=student, amount=amount, remarks=remarks)
+        FeeHistory.objects.create(student_id=student, amount=amount, remarks=remarks)
         return Response({
             'success': True,
             'message': 'Fee payment recorded',
