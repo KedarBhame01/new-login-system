@@ -8,10 +8,15 @@ class Students(models.Model):
     j_date = models.DateField(default= "2004-10-09")
     phone_no = models.IntegerField(default= 1234567890)
     total_fees = models.IntegerField(default= 10000)
-    paid_fees = models.IntegerField(default= 5000)
+    # paid_fees = models.IntegerField(default= 5000)
     
     def __str__(self):
         return self.name
+    
+    @property
+    def paid_fees(self):
+        # Calculate from fee history
+        return sum(fee.amount for fee in self.feehistory_set.all())
     
     @property
     def pending_fees(self):
@@ -20,3 +25,14 @@ class Students(models.Model):
     @property
     def is_authenticated(self):
         return True
+class FeeHistory(models.Model):
+    student = models.ForeignKey(Students, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    payment_date = models.DateTimeField(auto_now_add=True)
+    remarks = models.CharField(max_length=255, blank=True)
+    
+    def __str__(self):
+        return f"{self.student.name} - {self.amount}"
+    
+    class Meta:
+        verbose_name_plural = "Fee Histories"

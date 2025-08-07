@@ -1,13 +1,13 @@
 from django.shortcuts import render
-from .serializers import StudentSerializer, student_login_serializer
+from .serializers import StudentSerializer, student_login_serializer, FeeHistorySerializer
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
 from rest_framework import status
 # from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from .models import Students
+from .models import Students, FeeHistory
 from main_admin.models import Admins
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
@@ -154,3 +154,30 @@ class student_API(ModelViewSet):
     def list(self, request, *args, **kwargs):
         # Access current user: request.user
         return super().list(request, *args, **kwargs)
+
+class FeeHistoryAPI(ModelViewSet):
+    queryset = FeeHistory.objects.all()
+    serializer_class = FeeHistorySerializer
+    
+    def get_queryset(self):
+        student_id = self.request.query_params.get('student_id')
+        if student_id:
+            return FeeHistory.objects.filter(student_id=student_id)
+        return super().get_queryset()
+
+    @action(detail=False, methods=['post'], url_path='pay-fees')
+    def pay_fees(self, request):
+        student_id = request.data.get('student_id')
+        amount     = request.data.get('amount')
+        remarks    = request.data.get('remarks', '')
+        try:
+            student = Students.objects.get(id=student_id)
+        except Students.DoesNotExist:
+            return Response({'message': 'Student not found'}, status=404)
+
+        FeeHistory.objects.create(student=student, amount=amount, remarks=remarks)
+        return Response({
+            'success': True,
+            'message': 'Fee payment recorded',
+            'pending_fees': student.pending_fees
+        })

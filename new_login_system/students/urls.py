@@ -16,4 +16,6 @@ urlpatterns = [
     # path('login_api/',views.login_function, name='login_function'),
     path('login_api/',views.StudentLoginAPI.as_view()),                           #using modelviewset
     path('dashboard/',views.dashboard_page, name='dashboard_page'),
+    path('fee-history/',views.FeeHistoryAPI.as_view({'get':'list'})),
+    path('pay-fees/',views.FeeHistoryAPI.as_view({'post':'pay_fees'})),
 ]
