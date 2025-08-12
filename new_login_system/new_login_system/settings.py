@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,19 +81,19 @@ WSGI_APPLICATION = 'new_login_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'new_login_system',
-        # 'USER': 'root',
-        # 'PASSWORD': '@Djangostar123',
-        # 'HOST':'localhost',
-        # 'PORT':'3306',
-
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'KedarBhame$new_login_system',
-        'USER': 'KedarBhame',
+        'NAME': 'new_login_system',
+        'USER': 'root',
         'PASSWORD': '@Djangostar123',
-        'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
+        'HOST':'localhost',
         'PORT':'3306',
+
+        # 'ENGINE': 'django.db.backends.mysql',
+        # 'NAME': 'KedarBhame$new_login_system',
+        # 'USER': 'KedarBhame',
+        # 'PASSWORD': '@Djangostar123',
+        # 'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
+        # 'PORT':'3306',
         
     }
 }
@@ -136,6 +137,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = '/home/KedarBhame/new-login-system/new_login_system/students/templates'
 
+MEDIA_URL ='/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'medai')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

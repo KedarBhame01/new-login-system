@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.register(r'student_api', views.student_API, basename='student_api')
 
 router1 = DefaultRouter()
-router1.register(r'feeshistoryapi', views.FeeHistoryAPI, basename='feeshistoryapi')
+router1.register(r'FeeHistoryAPI', views.FeeHistoryAPI, basename='FeeHistoryAPI')
 
 urlpatterns = [
      path('student/',include(router.urls)),
