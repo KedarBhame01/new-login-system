@@ -17,3 +17,15 @@ class FeeHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = FeeHistory
         fields = '__all__'
+        
+    def to_representation(self, instance):
+        """Add absolute URL for image in the response."""
+        representation = super().to_representation(instance)
+        request = self.context.get('request')
+        
+        if instance.img1 and hasattr(instance.img1, 'url'):
+            representation['img1'] = request.build_absolute_uri(instance.img1.url)
+        else:
+            representation['img1'] = None
+        
+        return representation
