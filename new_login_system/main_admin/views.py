@@ -20,10 +20,10 @@ from drf_yasg import openapi
 # jwt for each function
 from rest_framework.permissions import IsAuthenticated
 from .authentication import JWTAuthentication
-
+from utils.base_viewsets import BaseCRUDViewSet
 from .permissions import IsAdminOrReadOnly
 
-class CalenderViewSet(viewsets.ModelViewSet):
+class CalenderViewSet(BaseCRUDViewSet):
     queryset = Calender.objects.all()
     serializer_class = CalenderSerializer
 
