@@ -20,7 +20,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
 
-
+from utils.base_viewsets import BaseCRUDViewSet
 # Create your views here.
 def login_page(request):
     return render(request, 'login.html')
@@ -121,41 +121,11 @@ class StudentLoginAPI(APIView):
             # 'token': token,
         },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
-class student_API(ModelViewSet):
+class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
 
-    
-    @swagger_auto_schema(request_body=StudentSerializer)
-    def create(self, request, *args, **kwargs):
-        try:
-            request_data = request.data.copy()
-            if 'password'in request_data:
-                request_data['password'] = make_password(request_data['password'])
-
-            serializer = self.get_serializer(data=request_data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            api_response={'success': True, 
-                        # 'data': serializer.request_data, 
-                        'code': status.HTTP_201_CREATED,
-                        'message': 'Student register successfully,',
-                          }
-            return Response(api_response)
-        except Exception as e:
-            error_msg = 'An error occurred: {}'.format(str(e))
-            error_response ={ 'success': False,
-                             'code': status.HTTP_400_BAD_REQUEST,
-                             'message': error_msg,
-                             }
-            return Response(error_response)
-        
-
-    def list(self, request, *args, **kwargs):
-        # Access current user: request.user
-        return super().list(request, *args, **kwargs)
-
-class FeeHistoryAPI(ModelViewSet):
+class FeeHistoryAPI(BaseCRUDViewSet):
     queryset = FeeHistory.objects.all()
     serializer_class = FeeHistorySerializer
     

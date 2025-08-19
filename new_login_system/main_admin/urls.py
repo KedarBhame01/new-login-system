@@ -16,16 +16,28 @@ router3.register(r'Homework', HomeworkViewSet, basename='Homework')
 urlpatterns = [
     # path('notices/',include(router.urls)),
     # path('attendance/', include(router1.urls)),
-    path('calender', include(router2.urls)),
-    path('homework', include(router3.urls)),
+    # path('calender', include(router2.urls)),
+    # path('homework', include(router3.urls)),
     path('attendance/add/', AttendanceViewset.as_view({'post':'create'})),
     path('attendance/all/', AttendanceViewset.as_view({'get':'list'})),
-    path('attendance/by-date/', AttendanceViewset.as_view({'post':'by_date'})),
     path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrieve'})),
     path('attendance/update/<int:pk>/', AttendanceViewset.as_view({'put':'update'})),
     path('attendance/delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
+    path('attendance/by-date/', AttendanceViewset.as_view({'post':'by_date'})),
     path('attendance/summery/', AttendanceViewset.as_view({'post':'attendance_summary'})),
-
+    
+    path('calender/add/', CalenderViewSet.as_view({'post':'create'})),
+    path('calender/all/', CalenderViewSet.as_view({'get':'list'})),
+    path('calender/details/<int:pk>/', CalenderViewSet.as_view({'get':'retrieve'})),
+    path('calender/update/<int:pk>/', CalenderViewSet.as_view({'put':'update'})),
+    path('calender/delete/<int:pk>/', CalenderViewSet.as_view({'delete':'destroy'})),
+    
+    path('homework/add/', HomeworkViewSet.as_view({'post':'create'})),
+    path('homework/all/', HomeworkViewSet.as_view({'get':'list'})),
+    path('homework/details/<int:pk>/', HomeworkViewSet.as_view({'get':'retrieve'})),
+    path('homework/update/<int:pk>/', HomeworkViewSet.as_view({'put':'update'})),
+    path('homework/delete/<int:pk>/', HomeworkViewSet.as_view({'delete':'destroy'})),
+    
     path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
     path('notice/all/', NoticeViewSet.as_view({'get':'list'})),
     path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrieve'})),
