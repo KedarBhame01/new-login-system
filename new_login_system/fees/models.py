@@ -1,5 +1,4 @@
 from django.db import models
-from students.models import Students
 
 # Create your models here.
 class FeeHistory(models.Model):
@@ -12,7 +11,7 @@ class FeeHistory(models.Model):
         ('cash', 'Cash'),
         ('online', 'Online'),
     )
-    student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
+    student_id = models.ForeignKey("students.Students", on_delete=models.CASCADE)
     amount = models.IntegerField()
     payment_date = models.DateTimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255, blank=True)

@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     # 'drf_spectacular',
     'fees',
+    'attendance',
 ]
 
 MIDDLEWARE = [

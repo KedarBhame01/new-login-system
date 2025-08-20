@@ -7,12 +7,12 @@ from .views import student_API
 
 urlpatterns = [
     
-    path('student/add/', student_API.as_view({'post':'create'})),
-    path('student/all/', student_API.as_view({'get':'list'})),
-    path('student/details/<int:pk>/', student_API.as_view({'get':'retrieve'})),
-    path('student/partialupdate/<int:pk>/', student_API.as_view({'patch': 'partial_update'})),
-    path('student/update/<int:pk>/', student_API.as_view({'put':'update'})),
-    path('student/delete/<int:pk>/', student_API.as_view({'delete':'destroy'})),
+    path('add/', student_API.as_view({'post':'create'})),
+    path('all/', student_API.as_view({'get':'list'})),
+    path('details/<int:pk>/', student_API.as_view({'get':'retrieve'})),
+    path('partialupdate/<int:pk>/', student_API.as_view({'patch': 'partial_update'})),
+    path('update/<int:pk>/', student_API.as_view({'put':'update'})),
+    path('delete/<int:pk>/', student_API.as_view({'delete':'destroy'})),
     
      
     # path('verify_token/',views.verify_token, name='verify_token'),

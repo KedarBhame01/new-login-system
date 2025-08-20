@@ -1,31 +1,10 @@
 from django.contrib import admin
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import NoticeViewSet,AdminViewSet, AttendanceViewset, CalenderViewSet, HomeworkViewSet
+from django.urls import path
+from .views import NoticeViewSet,AdminViewSet, CalenderViewSet, HomeworkViewSet
 from django.conf import settings
 from django.conf.urls.static import static
-# from . import views
-# router = DefaultRouter()
-# router.register(r'notices', NoticeViewSet, basename='notice')
-# router1 = DefaultRouter()
-# router1.register(r'attendance', AttendanceViewset, basename='attendance')
-router2 = DefaultRouter()
-router2.register(r'calender', CalenderViewSet, basename='calender')
-router3 = DefaultRouter()
-router3.register(r'Homework', HomeworkViewSet, basename='Homework')
+
 urlpatterns = [
-    # path('notices/',include(router.urls)),
-    # path('attendance/', include(router1.urls)),
-    # path('calender', include(router2.urls)),
-    # path('homework', include(router3.urls)),
-    path('attendance/add/', AttendanceViewset.as_view({'post':'create'})),
-    path('attendance/all/', AttendanceViewset.as_view({'get':'list'})),
-    path('attendance/details/<int:pk>/', AttendanceViewset.as_view({'get':'retrieve'})),
-    path('attendance/partialupdate/<int:pk>/', AttendanceViewset.as_view({'patch': 'partial_update'})),
-    path('attendance/update/<int:pk>/', AttendanceViewset.as_view({'put':'update'})),
-    path('attendance/delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
-    path('attendance/by-date/', AttendanceViewset.as_view({'post':'by_date'})),
-    path('attendance/summery/', AttendanceViewset.as_view({'post':'attendance_summary'})),
     
     path('calender/add/', CalenderViewSet.as_view({'post':'create'})),
     path('calender/all/', CalenderViewSet.as_view({'get':'list'})),
