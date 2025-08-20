@@ -44,7 +44,12 @@ urlpatterns = [
     path('notice/update/<int:pk>/', NoticeViewSet.as_view({'put':'update'})),
     path('notice/delete/<int:pk>/', NoticeViewSet.as_view({'delete':'destroy'})),
 
-    path('admin/add/',AdminViewSet.as_view({'post':'create'})), 
+    path('admin/add/',AdminViewSet.as_view({'post':'create'})),
+    path('admin/all/', AdminViewSet.as_view({'get':'list'})),
+    path('admin/details/<int:pk>/', AdminViewSet.as_view({'get':'retrieve'})),
+    path('admin/partialupdate/<int:pk>/', AdminViewSet.as_view({'patch': 'partial_update'})),
+    path('admin/update/<int:pk>/', AdminViewSet.as_view({'put':'update'})),
+    path('admin/delete/<int:pk>/', AdminViewSet.as_view({'delete':'destroy'})), 
     # path('all_notice/',NoticeViewSet.as_view({'get':'list'})),
 
 ]
