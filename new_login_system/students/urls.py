@@ -4,11 +4,11 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from .views import student_API, FeeHistoryAPI
 
-router = DefaultRouter()
-router.register(r'student_api', views.student_API, basename='student_api')
+# router = DefaultRouter()
+# router.register(r'student_api', views.student_API, basename='student_api')
 
-router1 = DefaultRouter()
-router1.register(r'FeeHistoryAPI', views.FeeHistoryAPI, basename='FeeHistoryAPI')
+# router1 = DefaultRouter()
+# router1.register(r'FeeHistoryAPI', views.FeeHistoryAPI, basename='FeeHistoryAPI')
 
 urlpatterns = [
     #  path('student/',include(router.urls)),
@@ -17,7 +17,7 @@ urlpatterns = [
     path('student/add/', student_API.as_view({'post':'create'})),
     path('student/all/', student_API.as_view({'get':'list'})),
     path('student/details/<int:pk>/', student_API.as_view({'get':'retrieve'})),
-        path('student/partialupdate/<int:pk>/', student_API.as_view({'patch': 'partial_update'})),
+    path('student/partialupdate/<int:pk>/', student_API.as_view({'patch': 'partial_update'})),
     path('student/update/<int:pk>/', student_API.as_view({'put':'update'})),
     path('student/delete/<int:pk>/', student_API.as_view({'delete':'destroy'})),
     

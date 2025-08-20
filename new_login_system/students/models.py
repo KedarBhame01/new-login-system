@@ -16,7 +16,7 @@ class Students(models.Model):
     @property
     def paid_fees(self):
         # Calculate from fee history
-        return sum(fee.amount for fee in self.feehistory_set.all())
+        return sum(fee.amount for fee in self.feehistory_set.filter(status='success'))
     
     @property
     def pending_fees(self):
@@ -27,13 +27,13 @@ class Students(models.Model):
         return True
 class FeeHistory(models.Model):
     STATUS_CHOICES = (
-        ('success', 'Success'),
         ('pending', 'Pending'),
+        ('success', 'Success'),
         ('fail', 'Fail'),
     )
     METHOD_CHOICES = (
-        ('online', 'Online'),
         ('cash', 'Cash'),
+        ('online', 'Online'),
     )
     student_id = models.ForeignKey(Students, on_delete=models.CASCADE)
     amount = models.IntegerField()

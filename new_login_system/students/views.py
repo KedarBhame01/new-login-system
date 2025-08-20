@@ -150,28 +150,6 @@ class student_API(BaseCRUDViewSet):
 class FeeHistoryAPI(BaseCRUDViewSet):
     queryset = FeeHistory.objects.all()
     serializer_class = FeeHistorySerializer
-    
-    
-    # def ncreate(self, request, *args, **kwargs):         # <<< rename this
-    #     image_file = request.FILES.get('img1')
-    #     img1_path = ""
-    #     if image_file:
-    #         save_dir = os.path.join(settings.MEDIA_ROOT, "feehistory_images")
-    #         os.makedirs(save_dir, exist_ok=True)
-    #         file_path = os.path.join(save_dir, image_file.name)
-    #         with open(file_path, "wb+") as dest:
-    #             for chunk in image_file.chunks():
-    #                 dest.write(chunk)
-    #         img1_path = f"feehistory_images/{image_file.name}"
-
-    #     # merge img1_path into request.data
-    #     data = {**request.data, "img1": img1_path}
-    #     serializer = self.get_serializer(data=data)
-    #     serializer.is_valid(raise_exception=True)
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
 
     def get_queryset(self):
         student_id = self.request.query_params.get('student_id')
@@ -192,40 +170,23 @@ class FeeHistoryAPI(BaseCRUDViewSet):
             try:
                 student = Students.objects.get(id=student_id)
             except Students.DoesNotExist:
-                return Response("Student not found.", code=status.HTTP_404_NOT_FOUND)
-            if amount > student.pending_fees:
-                return Response(
-                    f"Payment exceeds pending fees! Maximum allowed: {student.pending_fees}",
+                return error_response("Student not found.", code=status.HTTP_404_NOT_FOUND)
+
+            # Strict amount check - amount must equal pending_fees
+            if amount != student.pending_fees:
+                return error_response(
+                    f"Payment must be exactly the pending fees: {student.pending_fees}",
                     code=status.HTTP_400_BAD_REQUEST
                 )
-                
+
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return success_response("Record created successfully",
-                                    serializer.data,
-                                    code=status.HTTP_201_CREATED)
+
+            return success_response(
+                "Fee payment recorded",
+                serializer.data,
+                code=status.HTTP_201_CREATED
+            )
         except Exception as e:
-            return error_response(f"Error creating record: {e}")
-        
-        
-
-       
-
-        
-
-        # # Create FeeHistory record via serializer
-        # data = {
-        #     'student_id': student.id,
-        #     'amount': amount,
-        #     'remarks': remarks,
-        # }
-        # serializer = self.get_serializer(data=request.data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response(
-        #         "Fee payment recorded",
-        #         'pending_fees', student.pending_fees
-        #     )
-        # else:
-        #     return Response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
+            return error_response(f"Error creating record: {e}")        
