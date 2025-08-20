@@ -14,6 +14,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # JWT authentication class
 
+import os
 #for jwt json web token
 import jwt
 from datetime import timedelta
@@ -129,24 +130,26 @@ class FeeHistoryAPI(BaseCRUDViewSet):
     queryset = FeeHistory.objects.all()
     serializer_class = FeeHistorySerializer
     
-    def ncreate(self, request, *args, **kwargs):
-        image_file = request.FILES.get('img1')
-        img1_path = ""
-        if image_file:
-            save_dir = os.path.join(settings.MEDIA_ROOT, "feehistory_images/")
-            os.makedirs(save_dir, exist_ok=True)
-            file_path = os.path.join(save_dir, image_file.name)
-            with open(file_path, "wb+") as dest:
-                for chunk in image_file.chunks():
-                    dest.write(chunk)
-            img1_path = f"feehistory_images/{image_file.name}"
-        # pass img1 as a path string to serializer
-        serializer = self.get_serializer(data={**request.data, "img1": img1_path})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    # def ncreate(self, request, *args, **kwargs):         # <<< rename this
+    #     image_file = request.FILES.get('img1')
+    #     img1_path = ""
+    #     if image_file:
+    #         save_dir = os.path.join(settings.MEDIA_ROOT, "feehistory_images")
+    #         os.makedirs(save_dir, exist_ok=True)
+    #         file_path = os.path.join(save_dir, image_file.name)
+    #         with open(file_path, "wb+") as dest:
+    #             for chunk in image_file.chunks():
+    #                 dest.write(chunk)
+    #         img1_path = f"feehistory_images/{image_file.name}"
 
+    #     # merge img1_path into request.data
+    #     data = {**request.data, "img1": img1_path}
+    #     serializer = self.get_serializer(data=data)
+    #     serializer.is_valid(raise_exception=True)
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
     def get_queryset(self):

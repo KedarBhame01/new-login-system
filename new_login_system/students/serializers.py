@@ -14,14 +14,20 @@ class student_login_serializer(serializers.Serializer):
     type = serializers.ChoiceField(choices=['admin', 'student'])
 
 class FeeHistorySerializer(serializers.ModelSerializer):
-    img1_url = serializers.SerializerMethodField()
+    # img1_url = serializers.SerializerMethodField()
     class Meta:
         model = FeeHistory
         fields = '__all__'
 
-    def get_img1_url(self, obj):
+    def to_representation(self, instance):
+        """Return full image URLs in API response"""
+        representation = super().to_representation(instance)
         request = self.context.get('request')
-        if obj.img1:
-            return request.build_absolute_uri('/media/' + obj.img1)
-        return None 
+        
+        if instance.img1 and hasattr(instance.img1, 'url'):
+            representation['img1'] = request.build_absolute_uri(instance.img1.url)
+        else:
+            representation['img1'] = None
+            
+        return representation 
     

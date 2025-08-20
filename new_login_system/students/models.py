@@ -30,7 +30,8 @@ class FeeHistory(models.Model):
     amount = models.IntegerField()
     payment_date = models.DateTimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255, blank=True)
-    img1 = models.CharField(max_length=500, blank=True, null=True)
+    img1 = models.ImageField(upload_to='feehistory_images/', blank=True, null=True)    
+    
     def __str__(self):
         return f"{self.student_id.name} - {self.amount}"
     
