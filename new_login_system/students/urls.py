@@ -21,8 +21,9 @@ urlpatterns = [
     path('student/update/<int:pk>/', student_API.as_view({'put':'update'})),
     path('student/delete/<int:pk>/', student_API.as_view({'delete':'destroy'})),
     
+    path('fees/pay/', FeeHistoryAPI.as_view({'post':'pay_fees'})),
     path('fees/add/', FeeHistoryAPI.as_view({'post':'create'})),
-    path('fees/nadd/', FeeHistoryAPI.as_view({'post':'ncreate'})),
+    # path('fees/nadd/', FeeHistoryAPI.as_view({'post':'ncreate'})),
     path('fees/all/', FeeHistoryAPI.as_view({'get':'list'})),
     path('fees/details/<int:pk>/', FeeHistoryAPI.as_view({'get':'retrieve'})),
     path('fees/partialupdate/<int:pk>/', FeeHistoryAPI.as_view({'patch': 'partial_update'})),

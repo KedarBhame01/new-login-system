@@ -14,6 +14,27 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # JWT authentication class
 
+def success_response(message, data=None, code=status.HTTP_200_OK, extra=None):
+    response = {
+        "status": "success",
+        "code": code,
+        "message": message,
+    }
+    if data is not None:
+        response["data"] = data
+    if extra:
+        response.update(extra)
+    return Response(response, status=code)
+
+
+def error_response(message, code=status.HTTP_400_BAD_REQUEST):
+    response = {
+        "status": "error",
+        "code": code,
+        "message": message,
+    }
+    return Response(response, status=code)
+
 import os
 #for jwt json web token
 import jwt
@@ -160,30 +181,51 @@ class FeeHistoryAPI(BaseCRUDViewSet):
 
     @action(detail=False, methods=['post'], url_path='pay-fees')
     def pay_fees(self, request):
-        student_id = request.data.get('student_id')
         try:
-            amount = int(request.data.get('amount', 0))
-        except (TypeError, ValueError):
-            return Response({
-                'success': False,
-                'message': 'Invalid amount.'
-            }, status=status.HTTP_400_BAD_REQUEST)
-        remarks = request.data.get('remarks', '')
+            student_id = request.data.get('student_id')
+            try:
+                amount = int(request.data.get('amount', 0))
+            except (TypeError, ValueError):
+                return error_response("Invalid amount.", code=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            student = Students.objects.get(id=student_id)
-        except Students.DoesNotExist:
-            return Response({'message': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+            remarks = request.data.get('remarks', '')
+            try:
+                student = Students.objects.get(id=student_id)
+            except Students.DoesNotExist:
+                return Response("Student not found.", code=status.HTTP_404_NOT_FOUND)
+            if amount > student.pending_fees:
+                return Response(
+                    f"Payment exceeds pending fees! Maximum allowed: {student.pending_fees}",
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+                
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return success_response("Record created successfully",
+                                    serializer.data,
+                                    code=status.HTTP_201_CREATED)
+        except Exception as e:
+            return error_response(f"Error creating record: {e}")
+        
+        
 
-        if amount > student.pending_fees:
-            return Response({
-                'success': False,
-                'message': f'Payment exceeds pending fees! Maximum allowed: {student.pending_fees}'
-            }, status=status.HTTP_400_BAD_REQUEST)
+       
 
-        FeeHistory.objects.create(student_id=student, amount=amount, remarks=remarks)
-        return Response({
-            'success': True,
-            'message': 'Fee payment recorded',
-            'pending_fees': student.pending_fees
-        })
+        
+
+        # # Create FeeHistory record via serializer
+        # data = {
+        #     'student_id': student.id,
+        #     'amount': amount,
+        #     'remarks': remarks,
+        # }
+        # serializer = self.get_serializer(data=request.data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #     return Response(
+        #         "Fee payment recorded",
+        #         'pending_fees', student.pending_fees
+        #     )
+        # else:
+        #     return Response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
