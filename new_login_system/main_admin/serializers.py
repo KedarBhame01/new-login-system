@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notices, Admins
+from .models import Admins
 
 class Admins_serializer(serializers.ModelSerializer):
     class Meta:
@@ -16,13 +16,3 @@ class Admins_serializer(serializers.ModelSerializer):
             representation['img1'] = None
             
         return representation 
-    
-class NoticeSerializerserializer(serializers.ModelSerializer):
-    title = serializers.CharField(max_length=255, required=True)
-    description = serializers.CharField(required=True,allow_blank=True)
-    class Meta:
-        model = Notices
-        fields = '__all__'
-
-
-        

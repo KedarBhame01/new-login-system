@@ -1,18 +1,10 @@
 from django.contrib import admin
 from django.urls import path
-from .views import NoticeViewSet,AdminViewSet
+from .views import AdminViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-       
-    path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
-    path('notice/all/', NoticeViewSet.as_view({'get':'list'})),
-    path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrieve'})),
-    path('notice/partialupdate/<int:pk>/', NoticeViewSet.as_view({'patch': 'partial_update'})),
-    path('notice/update/<int:pk>/', NoticeViewSet.as_view({'put':'update'})),
-    path('notice/delete/<int:pk>/', NoticeViewSet.as_view({'delete':'destroy'})),
-
     path('admin/add/',AdminViewSet.as_view({'post':'create'})),
     path('admin/all/', AdminViewSet.as_view({'get':'list'})),
     path('admin/details/<int:pk>/', AdminViewSet.as_view({'get':'retrieve'})),

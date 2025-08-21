@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .models import Notices, Admins
-from .serializers import NoticeSerializerserializer,Admins_serializer
+from .models import Admins
+from .serializers import Admins_serializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -17,16 +17,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 # Create your views here.
 
-# jwt for each function
 from utils.base_viewsets import BaseCRUDViewSet
-
-
-
-
-    
-class NoticeViewSet(BaseCRUDViewSet):
-    queryset = Notices.objects.all().order_by('-created_at')
-    serializer_class = NoticeSerializerserializer
       
 class AdminViewSet(BaseCRUDViewSet):
     queryset = Admins.objects.all()
