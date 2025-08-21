@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .models import Notices, Admins, Homework
-from .serializers import NoticeSerializerserializer,Admins_serializer, HomeworkSerializer
+from .models import Notices, Admins
+from .serializers import NoticeSerializerserializer,Admins_serializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -22,9 +22,7 @@ from utils.base_viewsets import BaseCRUDViewSet
 
 
 
-class HomeworkViewSet(BaseCRUDViewSet):
-    queryset = Homework.objects.all()
-    serializer_class = HomeworkSerializer
+
     
 class NoticeViewSet(BaseCRUDViewSet):
     queryset = Notices.objects.all().order_by('-created_at')

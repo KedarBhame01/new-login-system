@@ -1,19 +1,11 @@
 from django.contrib import admin
 from django.urls import path
-from .views import NoticeViewSet,AdminViewSet, HomeworkViewSet
+from .views import NoticeViewSet,AdminViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    
-    
-    path('homework/add/', HomeworkViewSet.as_view({'post':'create'})),
-    path('homework/all/', HomeworkViewSet.as_view({'get':'list'})),
-    path('homework/details/<int:pk>/', HomeworkViewSet.as_view({'get':'retrieve'})),
-    path('homework/partialupdate/<int:pk>/', HomeworkViewSet.as_view({'patch': 'partial_update'})),
-    path('homework/update/<int:pk>/', HomeworkViewSet.as_view({'put':'update'})),
-    path('homework/delete/<int:pk>/', HomeworkViewSet.as_view({'delete':'destroy'})),
-    
+       
     path('notice/add/', NoticeViewSet.as_view({'post':'create'})),
     path('notice/all/', NoticeViewSet.as_view({'get':'list'})),
     path('notice/details/<int:pk>/', NoticeViewSet.as_view({'get':'retrieve'})),

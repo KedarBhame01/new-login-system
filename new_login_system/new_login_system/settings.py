@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'fees',
     'attendance',
     'calender',
+    'homework',
 ]
 
 MIDDLEWARE = [
