@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 from rest_framework import viewsets
-from .models import Notices, Admins, Calender, Homework
-from .serializers import NoticeSerializerserializer,Admins_serializer, CalenderSerializer, HomeworkSerializer
+from .models import Notices, Admins, Homework
+from .serializers import NoticeSerializerserializer,Admins_serializer, HomeworkSerializer
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from rest_framework.response import Response
@@ -18,14 +18,9 @@ from drf_yasg import openapi
 # Create your views here.
 
 # jwt for each function
-from rest_framework.permissions import IsAuthenticated
-from .authentication import JWTAuthentication
 from utils.base_viewsets import BaseCRUDViewSet
-from .permissions import IsAdminOrReadOnly
 
-class CalenderViewSet(BaseCRUDViewSet):
-    queryset = Calender.objects.all()
-    serializer_class = CalenderSerializer
+
 
 class HomeworkViewSet(BaseCRUDViewSet):
     queryset = Homework.objects.all()

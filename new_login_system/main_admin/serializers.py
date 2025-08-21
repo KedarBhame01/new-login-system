@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Notices, Admins, Calender, Homework
+from .models import Notices, Admins, Homework
 
 class Admins_serializer(serializers.ModelSerializer):
     class Meta:
@@ -40,7 +40,3 @@ class HomeworkSerializer(serializers.ModelSerializer):
             
         return representation 
         
-class CalenderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Calender
-        fields = '__all__'

@@ -1,17 +1,11 @@
 from django.contrib import admin
 from django.urls import path
-from .views import NoticeViewSet,AdminViewSet, CalenderViewSet, HomeworkViewSet
+from .views import NoticeViewSet,AdminViewSet, HomeworkViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     
-    path('calender/add/', CalenderViewSet.as_view({'post':'create'})),
-    path('calender/all/', CalenderViewSet.as_view({'get':'list'})),
-    path('calender/details/<int:pk>/', CalenderViewSet.as_view({'get':'retrieve'})),
-    path('calender/partialupdate/<int:pk>/', CalenderViewSet.as_view({'patch': 'partial_update'})),
-    path('calender/update/<int:pk>/', CalenderViewSet.as_view({'put':'update'})),
-    path('calender/delete/<int:pk>/', CalenderViewSet.as_view({'delete':'destroy'})),
     
     path('homework/add/', HomeworkViewSet.as_view({'post':'create'})),
     path('homework/all/', HomeworkViewSet.as_view({'get':'list'})),

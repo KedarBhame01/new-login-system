@@ -43,6 +43,7 @@ urlpatterns = [
     path('main_admin/', include('main_admin.urls')),
     path('student/fees/', include('fees.urls')),
     path('main_admin/attendance/', include('attendance.urls')),
+    path('main_admin/calender/', include('calender.urls')),
     path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
