@@ -74,12 +74,12 @@ def verify_token(request):
         return Response({'valid': False, 'message': 'Token expired'})
     except jwt.InvalidTokenError:
         return Response({'valid': False, 'message': 'Invalid token'})
-class StudentLoginAPI(APIView):
+class StudentLoginAPI(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_login_serializer
     
     @swagger_auto_schema(request_body=student_login_serializer)
-    def post(self,request, *args, **kwargs):
+    def login(self,request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -144,3 +144,19 @@ class StudentLoginAPI(APIView):
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            mutable_data = request.data.copy()
+            if 'password' in mutable_data:
+                mutable_data['password'] = make_password(mutable_data['password'])
+            serializer = self.get_serializer(data = mutable_data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return success_response("Record created successfully",
+                                    serializer.data,
+                                    code=status.HTTP_201_CREATED)
+        except Exception as e:
+            return error_response(f"Error creating record: {e}")
+        
+        

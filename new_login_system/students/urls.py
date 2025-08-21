@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from . import views
-from .views import student_API
+from .views import student_API, StudentLoginAPI
 
 
 
@@ -25,5 +25,5 @@ urlpatterns = [
     # path('login_api/',views.login_function, name='login_function'),
     # path('fees-history/',views.FeeHistoryAPI.as_view({'get':'list'})),
     # path('pay-fees/',views.FeeHistoryAPI.as_view({'post':'pay_fees'})),
-    path('login_api/',views.StudentLoginAPI.as_view()),                           #using modelviewset
+    path('login_api/',StudentLoginAPI.as_view({'post':'login'})),                           #using modelviewset
 ]

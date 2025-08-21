@@ -13,3 +13,4 @@ class student_login_serializer(serializers.Serializer):
     # type = serializers.CharField(choices=[('admin','admin'),('student','student')],required=True)
     type = serializers.ChoiceField(choices=['admin', 'student'])
     
+    
