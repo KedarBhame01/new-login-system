@@ -94,12 +94,15 @@ class StudentLoginAPI(ModelViewSet):
                     if check_password(password, user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(user, user_type)
+                        # return self.generate_token_response(user, user_type)
+                        return success_response("Student login successfully",
+                                    serializer.data,
+                                    code=status.HTTP_200_OK)
                     else:
-                        return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
+                        return Response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
             
                 except Students.DoesNotExist:
-                    return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
+                    return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
             elif user_type == 'admin':
                 # return Response({'message': 'cheack admin or not'},)
                 email = serializer.validated_data.get('email')
@@ -111,16 +114,19 @@ class StudentLoginAPI(ModelViewSet):
                     if check_password(password, user.password):
                         # return Response({'success': True,
                         #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        return self.generate_token_response(user, user_type)
+                        # return self.generate_token_response(user, user_type)
+                        return success_response("Admin login successfully",
+                                    serializer.data,
+                                    code=status.HTTP_200_OK)
                     else:
-                        return Response({'message': 'Invalid password'}, status=status.HTTP_401_UNAUTHORIZED)
+                        return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
             
                 except Admins.DoesNotExist:
-                    return Response({'message': 'Invalid email'}, status=status.HTTP_401_UNAUTHORIZED)
+                    return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
             else :
-                return Response({'message': 'Invalid type select "admin" or "student"'},)
+                return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
 
     def generate_token_response(self, user, user_type):
         now = timezone.now()
