@@ -12,28 +12,6 @@ from main_admin.models import Admins
 # for show swagger parameter
 from drf_yasg.utils import swagger_auto_schema
 # JWT authentication class
-
-def success_response(message, data=None, code=status.HTTP_200_OK, extra=None):
-    response = {
-        "status": "success",
-        "code": code,
-        "message": message,
-    }
-    if data is not None:
-        response["data"] = data
-    if extra:
-        response.update(extra)
-    return Response(response, status=code)
-
-
-def error_response(message, code=status.HTTP_400_BAD_REQUEST):
-    response = {
-        "status": "error",
-        "code": code,
-        "message": message,
-    }
-    return Response(response, status=code)
-
 #for jwt json web token
 import jwt
 from datetime import timedelta
@@ -41,6 +19,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from utils.base_viewsets import BaseCRUDViewSet
+from utils.base_viewsets import success_response, error_response
 # Create your views here.
 def login_page(request):
     return render(request, 'login.html')
@@ -50,30 +29,6 @@ def register_page(request):
 
 def dashboard_page(request):
     return render(request,'dashboard.html')
-
-@api_view(['POST'])
-def verify_token(request):
-    token = request.data.get('token')
-    if not token:
-        return Response({'valid': False, 'message': 'Token not provided'}, status=400)
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-        user_id = payload.get('id')
-        user_type = payload.get('user_type')
-        if user_type == 'admin':
-            user = Admins.objects.get(id=user_id)
-
-        elif user_type == 'student':
-            user = Students.objects.get(id=user_id)
-
-        else:
-                return Response({'valid': False, 'message': 'User does not exist'}, status=401)
-        return Response({'valid': True, 'user_type': user_type, 'user_id': user_id})
-
-    except jwt.ExpiredSignatureError:
-        return Response({'valid': False, 'message': 'Token expired'})
-    except jwt.InvalidTokenError:
-        return Response({'valid': False, 'message': 'Invalid token'})
 class StudentLoginAPI(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_login_serializer
@@ -99,7 +54,7 @@ class StudentLoginAPI(ModelViewSet):
                                     serializer.data,
                                     code=status.HTTP_200_OK)
                     else:
-                        return Response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
+                        return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
             
                 except Students.DoesNotExist:
                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
@@ -127,25 +82,6 @@ class StudentLoginAPI(ModelViewSet):
                 return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
 
         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
-
-    def generate_token_response(self, user, user_type):
-        now = timezone.now()
-        payload = {
-            'user_type': user_type,
-            'id' : user.id,
-            'email': user.email,
-            'exp' : int((now +timedelta(days=1)).timestamp()),
-            'iat' : int(now.timestamp()),
-        }
-        token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-        return Response({
-            'success': True,
-            'message': 'Login successful',
-            'user_type': user_type,
-            'id': user.id,
-            'email': user.email,
-            # 'token': token,
-        },status=status.HTTP_200_OK, headers={'Authorization':f'Bearer {token}'})
 
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()

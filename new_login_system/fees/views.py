@@ -9,26 +9,7 @@ from students.models import Students
 # JWT authentication class
 
 from utils.base_viewsets import BaseCRUDViewSet
-def success_response(message, data=None, code=status.HTTP_200_OK, extra=None):
-    response = {
-        "status": "success",
-        "code": code,
-        "message": message,
-    }
-    if data is not None:
-        response["data"] = data
-    if extra:
-        response.update(extra)
-    return Response(response, status=code)
-
-
-def error_response(message, code=status.HTTP_400_BAD_REQUEST):
-    response = {
-        "status": "error",
-        "code": code,
-        "message": message,
-    }
-    return Response(response, status=code)
+from utils.base_viewsets import success_response, error_response
 # Create your views here.
 class FeeHistoryAPI(BaseCRUDViewSet):
     queryset = FeeHistory.objects.all()
