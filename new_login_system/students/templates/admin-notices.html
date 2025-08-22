@@ -571,9 +571,9 @@
                 description: document.getElementById('notice-description').value,
                 category: document.getElementById('notice-category').value,
                 priority: document.getElementById('notice-priority').value,
-                author: document.getElementById('notice-author').value,
+                
                 status: document.getElementById('notice-publish').checked ? 'published' : 'draft',
-                send_email: document.getElementById('notice-email').checked
+                
             };
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
@@ -582,7 +582,7 @@
             spinner.style.display = 'inline-block';
 
             try {
-                const url = noticeId ? `/main_admin/notice/notice/add/` : '/main_admin/api/notice/';
+                const url = noticeId ? `/main_admin/notice/notice/add/` : '/main_admin/notice/notice/all/';
                 const method = noticeId ? 'PUT' : 'POST';
 
                 const result = await apiCall(url, method, noticeData);
