@@ -410,8 +410,8 @@
 
         async function loadNotices() {
             try {
-                let result = await apiCall('/main_admin/api/notice/');
-                noticesData = result; // Assuming API returns list directly
+                let result = await apiCall('/main_admin/notice/notice/all/');
+                noticesData = result.data; // Assuming API returns list directly
             } catch {
                 noticesData = [];
                 showAlert('Failed to load notices', 'danger');
@@ -549,7 +549,7 @@
         async function deleteNotice(noticeId) {
             if (!confirm('Are you sure you want to delete this notice?')) return;
             try {
-                const result = await apiCall(`/main_admin/api/notice/${noticeId}/`, 'DELETE');
+                const result = await apiCall(`/main_admin/notice/notice/delete/${noticeId}/`, 'DELETE');
                 if (result.status === 'success' || !result.status) {
                     showAlert('Notice deleted successfully!', 'success');
                     noticesData = noticesData.filter(notice => notice.id !== noticeId);
@@ -582,7 +582,7 @@
             spinner.style.display = 'inline-block';
 
             try {
-                const url = noticeId ? `/main_admin/api/notice/${noticeId}/` : '/main_admin/api/notice/';
+                const url = noticeId ? `/main_admin/notice/notice/add/` : '/main_admin/api/notice/';
                 const method = noticeId ? 'PUT' : 'POST';
 
                 const result = await apiCall(url, method, noticeData);
