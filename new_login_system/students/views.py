@@ -32,51 +32,182 @@ def register_page(request):
 
 def dashboard_page(request):
     return render(request,'dashboard.html')
+# class StudentLoginAPI(ModelViewSet):
+#     queryset = Students.objects.all()
+#     serializer_class = student_login_serializer
+    
+#     @swagger_auto_schema(request_body=student_login_serializer)
+#     def login(self,request, *args, **kwargs):
+        
+#         serializer = self.serializer_class(data=request.data)
+#         if serializer.is_valid():
+#             user_type = serializer.validated_data.get('type')
+
+#             if user_type == 'student':
+#                 email = serializer.validated_data.get('email')
+#                 password = serializer.validated_data.get('password')
+#                 try:
+#                     user = Students.objects.get(email=email)
+#                     if check_password(password, user.password):
+#                         return success_response("Student login successfully",
+#                                     serializer.data,
+#                                     code=status.HTTP_200_OK)
+#                     else:
+#                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
+#                 except Students.DoesNotExist:
+#                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+                
+#             elif user_type == 'admin':
+#                 # return Response({'message': 'cheack admin or not'},)
+#                 email = serializer.validated_data.get('email')
+#                 password = serializer.validated_data.get('password')
+#                 try:
+#                     user = Admins.objects.get(email=email)
+#                     if check_password(password, user.password):
+#                         return success_response("Admin login successfully",
+#                                     serializer.data,
+#                                     code=status.HTTP_200_OK)
+#                     else:
+#                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
+#                 except Admins.DoesNotExist:
+#                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+
+#             else :
+#                 return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
+
+#         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
+  
+
 class StudentLoginAPI(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_login_serializer
     
     @swagger_auto_schema(request_body=student_login_serializer)
-    def login(self,request, *args, **kwargs):
-        
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
+    def login(self, request, *args, **kwargs):
+        """Login API with comprehensive error handling"""
+        try:
+            # 🔹 Check if request data exists
+            if not request.data:
+                return error_response(
+                    'No data provided. Please send email, password and type.', 
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+            
+            serializer = self.serializer_class(data=request.data)
+
+            if not serializer.is_valid():
+                # 🔹 Better error messages for validation
+                error_messages = []
+                for field, errors in serializer.errors.items():
+                    error_messages.append(f"{field}: {', '.join(errors)}")
+                return error_response(
+                    f"Validation failed: {'; '.join(error_messages)}", 
+                    code=status.HTTP_400_BAD_REQUEST
+                )
+
             user_type = serializer.validated_data.get('type')
+            email = serializer.validated_data.get('email')
+            password = serializer.validated_data.get('password')
+            
+            # 🔹 Validate required fields
+            if not email:
+                return error_response('Email is required', code=status.HTTP_400_BAD_REQUEST)
+            if not password:
+                return error_response('Password is required', code=status.HTTP_400_BAD_REQUEST)
+            if not user_type:
+                return error_response('User type is required', code=status.HTTP_400_BAD_REQUEST)
 
             if user_type == 'student':
-                email = serializer.validated_data.get('email')
-                password = serializer.validated_data.get('password')
                 try:
                     user = Students.objects.get(email=email)
-                    if check_password(password, user.password):
-                        return success_response("Student login successfully",
-                                    serializer.data,
-                                    code=status.HTTP_200_OK)
-                    else:
-                        return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
-                except Students.DoesNotExist:
-                    return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+                    
+                    # 🔹 Add password check with better error handling
+                    try:
+                        if check_password(password, user.password):
+                            logger.info(f"Student login successful for: {email}")
+                            return success_response(
+                                "Student login successful",
+                                serializer.data,
+                                code=status.HTTP_200_OK
+                            )
+                        else:
+                            logger.warning(f"Invalid password attempt for student: {email}")
+                            return error_response(
+                                'Invalid password. Please check your password and try again.', 
+                                code=status.HTTP_401_UNAUTHORIZED
+                            )
+                    except Exception as pwd_error:
+                        logger.error(f"Password check error for student {email}: {pwd_error}")
+                        return error_response(
+                            'Authentication failed. Please try again.', 
+                            code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
                 
+                except Students.DoesNotExist:
+                    logger.warning(f"Login attempt with non-existent student email: {email}")
+                    return error_response(
+                        'No student account found with this email. Please check your email or register.', 
+                        code=status.HTTP_404_NOT_FOUND
+                    )
+                except Exception as e:
+                    logger.error(f"Unexpected error during student login: {e}")
+                    return error_response(
+                        'Login failed due to server error. Please try again later.', 
+                        code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+
             elif user_type == 'admin':
-                # return Response({'message': 'cheack admin or not'},)
-                email = serializer.validated_data.get('email')
-                password = serializer.validated_data.get('password')
                 try:
                     user = Admins.objects.get(email=email)
-                    if check_password(password, user.password):
-                        return success_response("Admin login successfully",
-                                    serializer.data,
-                                    code=status.HTTP_200_OK)
-                    else:
-                        return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
+                    
+                    # 🔹 Add password check with better error handling
+                    try:
+                        if check_password(password, user.password):
+                            logger.info(f"Admin login successful for: {email}")
+                            return success_response(
+                                "Admin login successful",
+                                serializer.data,
+                                code=status.HTTP_200_OK
+                            )
+                        else:
+                            logger.warning(f"Invalid password attempt for admin: {email}")
+                            return error_response(
+                                'Invalid password. Please check your password and try again.', 
+                                code=status.HTTP_401_UNAUTHORIZED
+                            )
+                    except Exception as pwd_error:
+                        logger.error(f"Password check error for admin {email}: {pwd_error}")
+                        return error_response(
+                            'Authentication failed. Please try again.', 
+                            code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+                
                 except Admins.DoesNotExist:
-                    return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+                    logger.warning(f"Login attempt with non-existent admin email: {email}")
+                    return error_response(
+                        'No admin account found with this email. Please contact system administrator.', 
+                        code=status.HTTP_404_NOT_FOUND
+                    )
+                except Exception as e:
+                    logger.error(f"Unexpected error during admin login: {e}")
+                    return error_response(
+                        'Login failed due to server error. Please try again later.', 
+                        code=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+            else:
+                return error_response(
+                    'Invalid user type. Please select either "admin" or "student".', 
+                    code=status.HTTP_400_BAD_REQUEST
+                )
 
-            else :
-                return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Unexpected error in login API: {e}")
+            return error_response(
+                'An unexpected error occurred. Please try again later.', 
+                code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-        return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
-  
+
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
