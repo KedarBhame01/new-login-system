@@ -6,7 +6,7 @@ class Students(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     j_date = models.DateField(default= "2004-10-09")
-    phone_no = models.CharField(max_length=15, default= 0000000000)
+    phone_no = models.CharField(max_length=15)
     total_fees = models.IntegerField(default= 10000)
     # paid_fees = models.IntegerField(default= 5000)
     

@@ -6,6 +6,9 @@ class FeeHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = FeeHistory
         fields = '__all__'
+        extra_kwargs = {
+            'amount': {'default': 10000}
+        }
 
     def to_representation(self, instance):
         """Return full image URLs in API response"""

@@ -18,31 +18,23 @@ from drf_yasg import openapi
 # Create your views here.
 
 from utils.base_viewsets import BaseCRUDViewSet
+from utils.base_viewsets import success_response, error_response
       
 class AdminViewSet(BaseCRUDViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer
 
-    @swagger_auto_schema(request_body=Admins_serializer)
     def create(self, request, *args, **kwargs):
         try:
-            request_data = request.data.copy()
-            if 'password'in request_data:
-                request_data['password'] = make_password(request_data['password'])
-
-            serializer = self.get_serializer(data=request_data)
+            mutable_data = request.data.copy()
+            if 'password' in mutable_data:
+                mutable_data['password'] = make_password(mutable_data['password'])
+            serializer = self.get_serializer(data = mutable_data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            api_response={'success': True, 
-                          'data': request_data, 
-                          'code': status.HTTP_201_CREATED,
-                          }
-            return Response(api_response)
+            return success_response("Record created successfully",
+                                    serializer.data,
+                                    code=status.HTTP_201_CREATED)
         except Exception as e:
-            error_msg = 'An error occurred: {}'.format(str(e))
-            error_response ={ 'success': False,
-                             'code': status.HTTP_400_BAD_REQUEST,
-                             'message': error_msg,
-                             }
-            return Response(error_response)
-
+            return error_response(f"Error creating record: {e}")
+    

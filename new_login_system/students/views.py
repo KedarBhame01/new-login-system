@@ -20,6 +20,9 @@ from django.conf import settings
 
 from utils.base_viewsets import BaseCRUDViewSet
 from utils.base_viewsets import success_response, error_response
+import logging
+
+logger = logging.getLogger(__name__)
 # Create your views here.
 def login_page(request):
     return render(request, 'login.html')
@@ -35,70 +38,80 @@ class StudentLoginAPI(ModelViewSet):
     
     @swagger_auto_schema(request_body=student_login_serializer)
     def login(self,request, *args, **kwargs):
+        
         serializer = self.serializer_class(data=request.data)
-
         if serializer.is_valid():
             user_type = serializer.validated_data.get('type')
+
             if user_type == 'student':
                 email = serializer.validated_data.get('email')
                 password = serializer.validated_data.get('password')
-
                 try:
                     user = Students.objects.get(email=email)
-                    
                     if check_password(password, user.password):
-                        # return Response({'success': True,
-                        #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        # return self.generate_token_response(user, user_type)
                         return success_response("Student login successfully",
                                     serializer.data,
                                     code=status.HTTP_200_OK)
                     else:
                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
-            
                 except Students.DoesNotExist:
                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+                
             elif user_type == 'admin':
                 # return Response({'message': 'cheack admin or not'},)
                 email = serializer.validated_data.get('email')
                 password = serializer.validated_data.get('password')
-
                 try:
                     user = Admins.objects.get(email=email)
-                    
                     if check_password(password, user.password):
-                        # return Response({'success': True,
-                        #     'message': 'valid User'}, status=status.HTTP_200_OK)
-                        # return self.generate_token_response(user, user_type)
                         return success_response("Admin login successfully",
                                     serializer.data,
                                     code=status.HTTP_200_OK)
                     else:
                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
-            
                 except Admins.DoesNotExist:
                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
+
             else :
                 return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
 
         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
-
+  
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
 
     def create(self, request, *args, **kwargs):
         try:
-            mutable_data = request.data.copy()
-            if 'password' in mutable_data:
-                mutable_data['password'] = make_password(mutable_data['password'])
-            serializer = self.get_serializer(data = mutable_data)
+            data = request.data
+            if not data:
+                return error_response('No data provided.', code=status.HTTP_400_BAD_REQUEST)
+
+            # Check required fields
+            for field in ['name', 'email', 'password']:
+                if not data.get(field):
+                    return error_response(f'Missing field: {field}', code=status.HTTP_400_BAD_REQUEST)
+
+            # Check if email exists
+            if Students.objects.filter(email=data['email']).exists():
+                return error_response('Email already exists.', code=status.HTTP_409_CONFLICT)
+
+            # Hash password
+            data = data.copy()
+            data['password'] = make_password(data['password'])
+
+            serializer = self.get_serializer(data=data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return success_response("Record created successfully",
+
+            return success_response(
+                "Student registered successfully",
                                     serializer.data,
-                                    code=status.HTTP_201_CREATED)
+                                    code=status.HTTP_201_CREATED
+            )
         except Exception as e:
-            return error_response(f"Error creating record: {e}")
+            logger.error(f"Error creating student: {e}")
+            return error_response('Registration failed. Please try again later.', code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         
         
