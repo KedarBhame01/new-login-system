@@ -1,212 +1,350 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Student Signup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Student Management System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Nunito', sans-serif;
+            padding: 20px 0;
         }
-        .form-container {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input, textarea {
+        
+        .register-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 900px;
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
         }
-        button {
-            background: #007bff;
+        
+        .register-form {
+            padding: 40px;
+        }
+        
+        .register-image {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 10px 20px;
+        }
+        
+        .form-control:focus {
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn-register {
+            background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        button:hover {
-            background: #0056b3;
+        
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        
+        .password-strength {
+            font-size: 0.8rem;
+            margin-top: 5px;
         }
-        th, td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        .message {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
+        
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
     </style>
 </head>
 <body>
-
-<h2>Student Signup</h2>
-
-<div class="form-container">
-    <form id="studentForm">
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-10 col-lg-8">
+                <div class="register-container">
+                    <div class="row g-0">
+                        <!-- Left Side - Image -->
+                        <div class="col-md-5 d-none d-md-block">
+                            <div class="register-image">
+                                <div class="text-center">
+                                    <i class="fas fa-user-plus fa-5x mb-4"></i>
+                                    <h3>Join Us Today!</h3>
+                                    <p class="mb-0">Start your educational journey with us</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Side - Form -->
+                        <div class="col-md-7">
+                            <div class="register-form">
+                                <div class="text-center mb-4">
+                                    <h2 class="fw-bold">Create Account</h2>
+                                    <p class="text-muted">Fill in your details to get started</p>
+                                </div>
+                                
+                                <!-- Alert Container -->
+                                <div id="alert-container"></div>
+                                
+                                <!-- Register Form -->
+                                <form id="registerForm">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">
+                                            <i class="fas fa-user"></i> Full Name
+                                        </label>
+                                        <input type="text" class="form-control" id="name" name="name" 
+                                               placeholder="Enter your full name" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">
+                                            <i class="fas fa-envelope"></i> Email Address
+                                        </label>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               placeholder="Enter your email" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="phone_no" class="form-label">
+                                            <i class="fas fa-phone"></i> Phone Number
+                                        </label>
+                                        <input type="tel" class="form-control" id="phone_no" name="phone_no" 
+                                               placeholder="Enter your phone number" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="password" class="form-label">
+                                            <i class="fas fa-lock"></i> Password
+                                        </label>
+                                        <input type="password" class="form-control" id="password" name="password" 
+                                               placeholder="Create a strong password" required>
+                                        <div id="password-strength" class="password-strength"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label">
+                                            <i class="fas fa-lock"></i> Confirm Password
+                                        </label>
+                                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                                               placeholder="Confirm your password" required>
+                                        <div id="password-match" class="password-strength"></div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="j_date" class="form-label">
+                                            <i class="fas fa-calendar"></i> Joining Date
+                                        </label>
+                                        <input type="date" class="form-control" id="j_date" name="j_date" required>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="terms" required>
+                                        <label class="form-check-label" for="terms">
+                                            I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-success btn-register w-100">
+                                        <span class="loading-spinner spinner-border spinner-border-sm me-2" style="display: none;"></span>
+                                        Create Account
+                                    </button>
+                                </form>
+                                
+                                <div class="text-center mt-4">
+                                    <p class="mb-0">Already have an account? 
+                                        <a href="/student/login/" class="text-decoration-none fw-bold">Sign in here</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <!-- <div class="form-group">
-            <label for="age">Age:</label>
-            <input type="number" id="age" name="age" required min="1" max="100">
-        </div> -->
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required minlength="6">
-        </div>
-        
-        <!-- <div class="form-group">
-            <label for="phone">Phone:</label>
-            <input type="tel" id="phone" name="phone" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="address">Address:</label>
-            <textarea id="address" name="address" rows="3" required></textarea>
-        </div> -->
-        
-        <button type="submit">Sign Up</button>
-    </form>
-    
-    <div style="text-align: center; margin-top: 15px;">
-        <p>Already have an account? <a href="/student/login/" style="color: #007bff; text-decoration: none;">Login here</a></p>
     </div>
-</div>
 
-<div id="message"></div>
-
-{% comment %} <h2>Registered Students</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <!-- <th>Age</th> -->
-            <th>Email</th>
-            <!-- <th>Phone</th> -->
-            <!-- <th>Address</th> -->
-        </tr>
-    </thead>
-    <tbody id="studentTableBody">
-        <!-- Students will be loaded here -->
-    </tbody>
-</table> {% endcomment %}
-
-<script>
-// async function loadStudents() {
-//     try {
-//         const response = await fetch('/student/login_api/');
-//         const students = await response.json();
-
-//         const tableBody = document.getElementById('studentTableBody');
-//         tableBody.innerHTML = '';
-
-//         students.forEach(student => {
-//             const row = document.createElement('tr');
-//             row.innerHTML = `
-//                 <td>${student.id}</td>
-//                 <td>${student.name}</td>
-//                 <td>${student.age}</td>
-//                 <td>${student.email}</td>
-//                 <td>${student.phone}</td>
-//                 <td>${student.address}</td>
-//             `;
-//             tableBody.appendChild(row);
-//         });
-//     } catch (error) {
-//         showMessage('Error loading students', 'error');
-//     }
-// }
-
-function showMessage(text, type) {
-    const messageDiv = document.getElementById('message');
-    messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-    setTimeout(() => {
-        messageDiv.innerHTML = '';
-    }, 3000);
-}
-
-document.getElementById('studentForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const form = e.target;
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-    // console.log(name)
-    const form_data = {
-        name: form.name.value,
-        // age: parseInt(form.age.value),
-        email: form.email.value,
-        password: form.password.value,
-        // phone: form.phone.value,
-        // address: form.address.value
-    };
-
-    try {
-        const response = await fetch('/student/register_api/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(form_data),
-        });
-
-        const result = await response.json();
-        
-        if (response.ok) {
-            showMessage('Student registered successfully!', 'success');
-            form.reset();
-            // loadStudents();
-        } else {
-            showMessage('Error: ' + JSON.stringify(result), 'error');
+    <script>
+        // Show alert function
+        function showAlert(message, type = 'danger') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
         }
-    } catch (error) {
-        showMessage('Network error occurred', 'error');
-    }
-});
-
-// Load students on page load
-// window.onload = loadStudents;
-</script>
-
+        
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            let feedback = [];
+            
+            if (password.length >= 8) strength += 1;
+            else feedback.push("At least 8 characters");
+            
+            if (/[a-z]/.test(password)) strength += 1;
+            else feedback.push("Lowercase letter");
+            
+            if (/[A-Z]/.test(password)) strength += 1;
+            else feedback.push("Uppercase letter");
+            
+            if (/[0-9]/.test(password)) strength += 1;
+            else feedback.push("Number");
+            
+            if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+            else feedback.push("Special character");
+            
+            return { strength, feedback };
+        }
+        
+        // Set today's date as default
+        document.getElementById('j_date').valueAsDate = new Date();
+        
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const result = checkPasswordStrength(password);
+            const strengthDiv = document.getElementById('password-strength');
+            
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+            
+            let strengthClass = '';
+            let strengthText = '';
+            
+            if (result.strength <= 2) {
+                strengthClass = 'strength-weak';
+                strengthText = 'Weak';
+            } else if (result.strength <= 4) {
+                strengthClass = 'strength-medium';
+                strengthText = 'Medium';
+            } else {
+                strengthClass = 'strength-strong';
+                strengthText = 'Strong';
+            }
+            
+            strengthDiv.innerHTML = `<span class="${strengthClass}">Password Strength: ${strengthText}</span>`;
+            
+            if (result.feedback.length > 0) {
+                strengthDiv.innerHTML += `<br><small>Missing: ${result.feedback.join(', ')}</small>`;
+            }
+        });
+        
+        // Password match checker
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const matchDiv = document.getElementById('password-match');
+            
+            if (confirmPassword.length === 0) {
+                matchDiv.innerHTML = '';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                matchDiv.innerHTML = '<span class="strength-strong"><i class="fas fa-check"></i> Passwords match</span>';
+            } else {
+                matchDiv.innerHTML = '<span class="strength-weak"><i class="fas fa-times"></i> Passwords do not match</span>';
+            }
+        });
+        
+        // Handle form submission
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
+            
+            // Validate password match
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match!');
+                return;
+            }
+            
+            const registerData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                password: password,
+                phone_no: formData.get('phone_no'),
+                j_date: formData.get('j_date')
+            };
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+            
+            // Show loading
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            
+            try {
+                const response = await fetch('/student/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(registerData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showAlert('Account created successfully! Please login to continue.', 'success');
+                    
+                    // Redirect to login after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = '/student/login/';
+                    }, 2000);
+                } else {
+                    showAlert(result.message || 'Registration failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                showAlert('Network error. Please check your connection and try again.');
+            } finally {
+                // Hide loading
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+        
+        // Get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
 </body>
 </html>

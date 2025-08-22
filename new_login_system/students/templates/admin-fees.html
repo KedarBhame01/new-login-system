@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fee Management - Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #e74a3b 10%, #c92a2a 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+        }
+        
+        .status-pending { background-color: #f6c23e; color: #1a1a1a; }
+        .status-success { background-color: #1cc88a; color: white; }
+        .status-failed { background-color: #e74a3b; color: white; }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-user-shield"></i> SMS
+            </h4>
+            <small class="text-white-50">Admin Panel</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/students/">
+                    <i class="fas fa-users"></i> Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/attendance/">
+                    <i class="fas fa-calendar"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/main_admin/fees/">
+                    <i class="fas fa-dollar-sign"></i> Fee Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/calender/">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/homework/">
+                    <i class="fas fa-tasks"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/notice/">
+                    <i class="fas fa-bullhorn"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-warning" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Fee Management</h1>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Fee Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Revenue</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-revenue">₹0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Fees</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="pending-fees">₹0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">This Month</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="month-revenue">₹0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Transactions</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-transactions">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-list fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-xl-8 col-lg-7">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-bar"></i> Monthly Fee Collection
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyFeeChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-4 col-lg-5">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie"></i> Payment Methods
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Fee Transactions Table -->
+        <div class="card">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Recent Fee Transactions</h6>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="status-filter">
+                        <option value="">All Status</option>
+                        <option value="success">Success</option>
+                        <option value="pending">Pending</option>
+                        <option value="failed">Failed</option>
+                    </select>
+                    <button class="btn btn-outline-primary btn-sm" onclick="loadFeeTransactions()">
+                        <i class="fas fa-refresh"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Student</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fees-table">
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fee Details Modal -->
+    <div class="modal fade" id="feeDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Fee Transaction Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="fee-details">
+                    <!-- Fee details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="approve-payment" style="display: none;">
+                        Approve Payment
+                    </button>
+                    <button type="button" class="btn btn-danger" id="reject-payment" style="display: none;">
+                        Reject Payment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let monthlyChart, paymentChart;
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null) {
+            const headers = { 'Content-Type': 'application/json' };
+            const config = { method, headers };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+        
+        // Load fee statistics
+        async function loadFeeStats() {
+            try {
+                const result = await apiCall('/student/fees/all/');
+                
+                if (result.status === 'success') {
+                    const transactions = result.data;
+                    
+                    // Calculate stats
+                    const totalRevenue = transactions
+                        .filter(t => t.status === 'success')
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const pendingFees = transactions
+                        .filter(t => t.status === 'pending')
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const currentMonth = new Date().getMonth();
+                    const monthRevenue = transactions
+                        .filter(t => t.status === 'success' && new Date(t.payment_date).getMonth() === currentMonth)
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    // Update UI
+                    document.getElementById('total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+                    document.getElementById('pending-fees').textContent = `₹${pendingFees.toLocaleString()}`;
+                    document.getElementById('month-revenue').textContent = `₹${monthRevenue.toLocaleString()}`;
+                    document.getElementById('total-transactions').textContent = transactions.length;
+                    
+                    // Load charts
+                    loadCharts(transactions);
+                }
+            } catch (error) {
+                console.error('Error loading fee stats:', error);
+                showAlert('Error loading fee statistics', 'danger');
+            }
+        }
+        
+        // Load charts
+        function loadCharts(transactions) {
+            // Monthly chart
+            const ctx1 = document.getElementById('monthlyFeeChart').getContext('2d');
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            const monthlyData = months.map((_, index) => {
+                return transactions
+                    .filter(t => t.status === 'success' && new Date(t.payment_date).getMonth() === index)
+                    .reduce((sum, t) => sum + t.amount, 0);
+            });
+            
+            monthlyChart = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: monthlyData,
+                        backgroundColor: 'rgba(28, 200, 138, 0.8)',
+                        borderColor: '#1cc88a',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Payment method chart
+            const ctx2 = document.getElementById('paymentMethodChart').getContext('2d');
+            
+            if (paymentChart) {
+                paymentChart.destroy();
+            }
+            
+            const cashCount = transactions.filter(t => t.method === 'cash').length;
+            const onlineCount = transactions.filter(t => t.method === 'online').length;
+            
+            paymentChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Cash', 'Online'],
+                    datasets: [{
+                        data: [cashCount, onlineCount],
+                        backgroundColor: ['#f6c23e', '#4e73df'],
+                        hoverBackgroundColor: ['#f4b619', '#2e59d9'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load fee transactions
+        async function loadFeeTransactions() {
+            try {
+                const result = await apiCall('/student/fees/all/');
+                const tbody = document.getElementById('fees-table');
+                
+                if (result.status === 'success' && result.data.length > 0) {
+                    tbody.innerHTML = result.data
+                        .sort((a, b) => new Date(b.payment_date) - new Date(a.payment_date))
+                        .map(fee => `
+                            <tr>
+                                <td>#${fee.id}</td>
+                                <td>
+                                    <div class="fw-bold">${fee.student_name || 'Unknown'}</div>
+                                    <small class="text-muted">ID: ${fee.student_id}</small>
+                                </td>
+                                <td>₹${fee.amount.toLocaleString()}</td>
+                                <td><span class="badge bg-info">${fee.method}</span></td>
+                                <td>${new Date(fee.payment_date).toLocaleString()}</td>
+                                <td><span class="status-badge status-${fee.status}">${fee.status}</span></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewFeeDetails(${fee.id})">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${fee.status === 'pending' ? `
+                                            <button class="btn btn-sm btn-outline-success" onclick="updateFeeStatus(${fee.id}, 'success')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        ` : ''}
+                                    </div>
+                                </td>
+                            </tr>
+                        `).join('');
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <i class="fas fa-receipt fa-2x text-muted mb-2"></i>
+                                <div class="text-muted">No transactions found</div>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-danger">
+                            <i class="fas fa-exclamation-triangle"></i> Error loading transactions
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // View fee details
+        async function viewFeeDetails(feeId) {
+            try {
+                const result = await apiCall(`/student/fees/details/${feeId}/`);
+                
+                if (result.status === 'success') {
+                    const fee = result.data;
+                    const detailsHtml = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Transaction Information</h6>
+                                <p><strong>ID:</strong> #${fee.id}</p>
+                                <p><strong>Amount:</strong> ₹${fee.amount.toLocaleString()}</p>
+                                <p><strong>Method:</strong> ${fee.method}</p>
+                                <p><strong>Status:</strong> <span class="status-badge status-${fee.status}">${fee.status}</span></p>
+                                <p><strong>Date:</strong> ${new Date(fee.payment_date).toLocaleString()}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Student Information</h6>
+                                <p><strong>Name:</strong> ${fee.student_name || 'Unknown'}</p>
+                                <p><strong>Student ID:</strong> ${fee.student_id}</p>
+                                ${fee.remarks ? `<p><strong>Remarks:</strong> ${fee.remarks}</p>` : ''}
+                            </div>
+                            ${fee.img1 ? `
+                                <div class="col-12 mt-3">
+                                    <h6>Receipt</h6>
+                                    <img src="${fee.img1}" class="img-fluid" style="max-height: 300px; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    document.getElementById('fee-details').innerHTML = detailsHtml;
+                    
+                    // Show/hide action buttons
+                    const approveBtn = document.getElementById('approve-payment');
+                    const rejectBtn = document.getElementById('reject-payment');
+                    
+                    if (fee.status === 'pending') {
+                        approveBtn.style.display = 'inline-block';
+                        rejectBtn.style.display = 'inline-block';
+                        approveBtn.onclick = () => updateFeeStatus(fee.id, 'success');
+                        rejectBtn.onclick = () => updateFeeStatus(fee.id, 'failed');
+                    } else {
+                        approveBtn.style.display = 'none';
+                        rejectBtn.style.display = 'none';
+                    }
+                    
+                    new bootstrap.Modal(document.getElementById('feeDetailsModal')).show();
+                }
+            } catch (error) {
+                console.error('Error loading fee details:', error);
+                showAlert('Error loading fee details', 'danger');
+            }
+        }
+        
+        // Update fee status
+        async function updateFeeStatus(feeId, status) {
+            try {
+                const result = await apiCall(`/student/fees/partialupdate/${feeId}/`, 'PATCH', { status });
+                
+                if (result.status === 'success') {
+                    showAlert(`Payment ${status === 'success' ? 'approved' : 'rejected'} successfully!`, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('feeDetailsModal')).hide();
+                    loadFeeTransactions();
+                    loadFeeStats();
+                } else {
+                    showAlert(result.message || 'Failed to update payment status');
+                }
+            } catch (error) {
+                console.error('Error updating fee status:', error);
+                showAlert('Error updating payment status. Please try again.', 'danger');
+            }
+        }
+        
+        // Status filter
+        document.getElementById('status-filter').addEventListener('change', function() {
+            const filterValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#fees-table tr');
+            
+            rows.forEach(row => {
+                if (row.children.length === 1) return; // Skip loading/error rows
+                
+                const statusCell = row.children[5];
+                const status = statusCell.textContent.toLowerCase();
+                
+                row.style.display = filterValue === '' || status.includes(filterValue) ? '' : 'none';
+            });
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'admin') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadFeeStats();
+                loadFeeTransactions();
+            }
+        });
+    </script>
+</body>
+</html>

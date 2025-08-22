@@ -77,7 +77,71 @@ def dashboard_page(request):
 
 #         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
   
+# Add these new view functions to your students/views.py (keep existing code)
 
+def profile_page(request):
+    """Student profile page"""
+    try:
+        return render(request, 'student-profile.html')
+    except Exception as e:
+        logger.error(f"Error loading profile page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load profile page'})
+
+def fees_page(request):
+    """Student fees page"""
+    try:
+        return render(request, 'student-fees.html')
+    except Exception as e:
+        logger.error(f"Error loading fees page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load fees page'})
+
+def attendance_page(request):
+    """Student attendance page"""
+    try:
+        return render(request, 'student-attendance.html')
+    except Exception as e:
+        logger.error(f"Error loading attendance page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load attendance page'})
+
+def homework_page(request):
+    """Student homework page"""
+    try:
+        return render(request, 'student-homework.html')
+    except Exception as e:
+        logger.error(f"Error loading homework page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load homework page'})
+
+def notices_page(request):
+    """Student notices page"""
+    try:
+        return render(request, 'student-notices.html')
+    except Exception as e:
+        logger.error(f"Error loading notices page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load notices page'})
+def attendance_page(request):
+    """Student attendance view page"""
+    try:
+        return render(request, 'student-attendance.html')
+    except Exception as e:
+        logger.error(f"Error loading attendance page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load attendance page'})
+
+def homework_page(request):
+    """Student homework view page"""
+    try:
+        return render(request, 'student-homework.html')
+    except Exception as e:
+        logger.error(f"Error loading homework page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load homework page'})
+
+def notices_page(request):
+    """Student notices view page"""
+    try:
+        return render(request, 'student-notices.html')
+    except Exception as e:
+        logger.error(f"Error loading notices page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load notices page'})
+    
 class StudentLoginAPI(ModelViewSet):
     queryset = Students.objects.all()
     serializer_class = student_login_serializer

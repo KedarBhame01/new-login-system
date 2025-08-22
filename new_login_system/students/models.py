@@ -8,7 +8,6 @@ class Students(models.Model):
     j_date = models.DateField(default= "2004-10-09")
     phone_no = models.CharField(max_length=15)
     total_fees = models.IntegerField(default= 10000)
-    # paid_fees = models.IntegerField(default= 5000)
     
     def __str__(self):
         return self.name

@@ -3,93 +3,547 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Student Dashboard - SMS</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .topbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            padding: 1rem 2rem;
+            border-radius: 0.35rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-left: 0.25rem solid;
+            transition: all 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        .stats-card.primary { border-left-color: var(--primary-color); }
+        .stats-card.success { border-left-color: var(--success-color); }
+        .stats-card.info { border-left-color: var(--info-color); }
+        .stats-card.warning { border-left-color: var(--warning-color); }
+        .stats-card.danger { border-left-color: var(--danger-color); }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .recent-activity {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e3e6f0;
+            transition: background-color 0.3s;
+        }
+        
+        .activity-item:hover {
+            background-color: #f8f9fc;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Inside Dashboard</h1>
-    <button Onclick="logout()">Logout</button>
-    <button Onclick="main_logout()">main Logout</button>
-    <button id="showNoticesBtn">Show Notices</button>
-    <div id="noticesContainer" style="margin-top: 20px;"></div>
-
-</body>
-<script>
-    function logout(){
-        sessionStorage.removeItem('admin')
-        sessionStorage.clear();
-
-        window.location.href = '/student/login/'
-    }
-    function main_logout(){
-        localStorage.removeItem('admin')
-        localStorage.clear();
-
-        window.location.href = '/student/login/'
-    }
-
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-graduation-cap"></i> SMS
+            </h4>
+            <small class="text-white-50">Student Portal</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link active" href="/student/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/profile/">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/fees/">
+                    <i class="fas fa-money-bill"></i> Fees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/attendance/">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/homework/">
+                    <i class="fas fa-book"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/notices/">
+                    <i class="fas fa-bell"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
     
-    document.getElementById('showNoticesBtn').addEventListener('click', async function() {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        const container = document.getElementById('noticesContainer');
-        container.innerHTML = 'Loading notices...';
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <h1 class="h3 mb-0 text-gray-800">Student Dashboard</h1>
+            <div>
+                <span class="me-3">Welcome, <strong id="student-name">Loading...</strong></span>
+                <span class="badge bg-primary">Student</span>
+            </div>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card primary p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-dollar-sign fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Fees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-fees">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card success p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-check-circle fa-2x text-success"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Paid Fees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="paid-fees">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card warning p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Pending Fees</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="pending-fees">₹0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card info p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-percentage fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Attendance</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800" id="attendance-percentage">0%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-xl-8 col-lg-7">
+                <div class="card">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-area"></i> Attendance Overview
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-4 col-lg-5">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie"></i> Fee Status
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="feeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Activities and Quick Actions -->
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-list"></i> Recent Activities
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="recent-activity" id="recent-activities">
+                            <!-- Activities will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-tasks"></i> Quick Actions
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="/student/fees/" class="btn btn-outline-primary">
+                                <i class="fas fa-money-bill"></i> Pay Fees
+                            </a>
+                            <a href="/student/attendance/" class="btn btn-outline-info">
+                                <i class="fas fa-calendar-check"></i> View Attendance
+                            </a>
+                            <a href="/student/homework/" class="btn btn-outline-success">
+                                <i class="fas fa-book"></i> Check Homework
+                            </a>
+                            <a href="/student/notices/" class="btn btn-outline-warning">
+                                <i class="fas fa-bell"></i> View Notices
+                            </a>
+                            <a href="/student/profile/" class="btn btn-outline-secondary">
+                                <i class="fas fa-user"></i> Update Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        if(!token){
-            container.innerHTML = '<span style="color:red;">No token found. Please login again.</span>';
-            window.location.href = '/student/login';
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let attendanceChart, feeChart;
+        
+        // Show alert function
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
         }
-
-        try {
-            const response = await fetch('/main_admin/show_notices/', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null) {
+            const headers = { 'Content-Type': 'application/json' };
+            const config = { method, headers };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Load student data
+        async function loadStudentData() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                const userName = localStorage.getItem('user_name');
+                
+                if (!userId) {
+                    window.location.href = '/student/login/';
+                    return;
+                }
+                
+                // Set student name
+                document.getElementById('student-name').textContent = userName || 'Student';
+                
+                // Load student details
+                const studentData = await apiCall(`/student/details/${userId}/`);
+                
+                if (studentData.status === 'success') {
+                    const student = studentData.data;
+                    
+                    // Update stats
+                    document.getElementById('total-fees').textContent = `₹${student.total_fees || 0}`;
+                    document.getElementById('paid-fees').textContent = `₹${student.paid_fees || 0}`;
+                    document.getElementById('pending-fees').textContent = `₹${student.pending_fees || student.total_fees || 0}`;
+                    
+                    // Load charts
+                    loadFeeChart(student.paid_fees || 0, student.pending_fees || student.total_fees || 0);
+                }
+                
+                // Load other data
+                loadAttendanceData();
+                loadRecentActivities();
+                
+            } catch (error) {
+                console.error('Error loading student data:', error);
+                showAlert('Error loading dashboard data', 'danger');
+            }
+        }
+        
+        // Load attendance data
+        async function loadAttendanceData() {
+            try {
+                // This would typically call your attendance API
+                // For now, using dummy data
+                const attendanceData = {
+                    percentage: 85,
+                    monthly: [80, 85, 90, 85, 88, 85] // Last 6 months
+                };
+                
+                document.getElementById('attendance-percentage').textContent = `${attendanceData.percentage}%`;
+                loadAttendanceChart(attendanceData.monthly);
+                
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+        
+        // Load fee chart
+        function loadFeeChart(paid, pending) {
+            const ctx = document.getElementById('feeChart').getContext('2d');
+            
+            if (feeChart) {
+                feeChart.destroy();
+            }
+            
+            feeChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Paid', 'Pending'],
+                    datasets: [{
+                        data: [paid, pending],
+                        backgroundColor: ['#1cc88a', '#f6c23e'],
+                        hoverBackgroundColor: ['#17a673', '#f4b619'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
                 }
             });
-
-            if (response.status === 401) {
-                container.innerHTML = '<span style="color:red;">Unauthorized. Please login again.</span>';
-                return;
-            }
-
-            if (!response.ok) {
-                container.innerHTML = `Error: ${response.statusText}`;
-                return;
-            }
-
-            const notices = await response.json();
-
-            if (!notices.length) {
-                container.innerHTML = 'No notices found.';
-                return;
-            }
-
-            // Build pretty cards
-            let html = '<div class="notice-list">';
-            notices.forEach(function(notice) {
-                // Adjust field names to match your backend response
-                html += `
-                    <div class="notice-card">
-                        <div class="notice-title">${notice.title}</div>
-                        <div class="notice-desc">${notice.description || notice.descrip || notice.desc || notice.desciption || ''}</div>
-                        <div class="notice-date">
-                            ${notice.created_at ? 
-                            new Date(notice.created_at).toLocaleString()
-                            : ''}
-                        </div>
-                        <br>
-                    </div>
-                `;
-            });
-            html += '</div>';
-
-            container.innerHTML = html;
-
-        } catch (error) {
-            container.innerHTML = 'Failed to fetch notices.';
-            console.error(error);
         }
-    });
-
-</script>
+        
+        // Load attendance chart
+        function loadAttendanceChart(monthlyData) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            
+            attendanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: monthlyData,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load recent activities
+        function loadRecentActivities() {
+            const activities = [
+                { icon: 'fas fa-money-bill text-success', title: 'Fee Payment', desc: 'Paid ₹5000 for semester fees', time: '2 hours ago' },
+                { icon: 'fas fa-calendar-check text-info', title: 'Attendance Marked', desc: 'Present in Mathematics class', time: '1 day ago' },
+                { icon: 'fas fa-book text-warning', title: 'New Homework', desc: 'Physics assignment assigned', time: '2 days ago' },
+                { icon: 'fas fa-bell text-primary', title: 'Notice', desc: 'Exam schedule released', time: '3 days ago' },
+                { icon: 'fas fa-user text-secondary', title: 'Profile Updated', desc: 'Contact information updated', time: '1 week ago' }
+            ];
+            
+            const container = document.getElementById('recent-activities');
+            container.innerHTML = activities.map(activity => `
+                <div class="activity-item">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="${activity.icon}"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">${activity.title}</div>
+                            <div class="text-muted small">${activity.desc}</div>
+                        </div>
+                        <div class="text-muted small">${activity.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'student') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadStudentData();
+            }
+        });
+    </script>
+</body>
 </html>

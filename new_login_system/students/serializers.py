@@ -3,7 +3,7 @@ from .models import Students
 
 class StudentSerializer(serializers.ModelSerializer):
     pending_fees = serializers.ReadOnlyField()
-    
+    paid_fees = serializers.ReadOnlyField()
     class Meta:
         model = Students
         fields = '__all__'

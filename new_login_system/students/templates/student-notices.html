@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notices - Student</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .notice-card {
+            border-left: 4px solid #36b9cc;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .notice-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        .notice-card.urgent {
+            border-left-color: #e74a3b;
+        }
+        
+        .notice-card.important {
+            border-left-color: #f6c23e;
+        }
+        
+        .notice-new {
+            position: relative;
+        }
+        
+        .notice-new::after {
+            content: 'NEW';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e74a3b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .notice-meta {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Student Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-graduation-cap"></i> SMS
+            </h4>
+            <small class="text-white-50">Student Portal</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/student/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/profile/">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/fees/">
+                    <i class="fas fa-money-bill"></i> Fees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/attendance/">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/homework/">
+                    <i class="fas fa-book"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/student/notices/">
+                    <i class="fas fa-bell"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Notices & Announcements</h1>
+            <div class="d-flex gap-2">
+                <select class="form-select" id="category-filter" style="width: auto;">
+                    <option value="">All Categories</option>
+                    <option value="general">General</option>
+                    <option value="academic">Academic</option>
+                    <option value="exam">Exam</option>
+                    <option value="event">Event</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+                <button class="btn btn-outline-primary" onclick="loadNotices()">
+                    <i class="fas fa-refresh"></i> Refresh
+                </button>
+            </div>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Notice Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Notices</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-notices">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-bell fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">New This Week</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="new-notices">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-star fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Important</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="important-notices">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Urgent</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="urgent-notices">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notices Container -->
+        <div id="notices-container">
+            <!-- Notices will be loaded here -->
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading notices...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notice Detail Modal -->
+    <div class="modal fade" id="noticeModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notice Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="notice-details">
+                    <!-- Notice details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="shareNotice()">
+                        <i class="fas fa-share"></i> Share
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let noticesData = [];
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null) {
+            const headers = { 'Content-Type': 'application/json' };
+            const config = { method, headers };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+        
+        // Load notices
+        async function loadNotices() {
+            try {
+                // Try multiple endpoints
+                const endpoints = [
+                    '/main_admin/notice/all/',
+                    '/notice/all/',
+                    '/student/notices/'
+                ];
+                
+                let result = null;
+                for (const endpoint of endpoints) {
+                    try {
+                        result = await apiCall(endpoint);
+                        if (result.status === 'success' && result.data) {
+                            noticesData = result.data;
+                            break;
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+                
+                if (!noticesData || noticesData.length === 0) {
+                    generateDemoNotices();
+                }
+                
+                updateStats();
+                renderNotices();
+                
+            } catch (error) {
+                console.error('Error loading notices:', error);
+                generateDemoNotices();
+                showAlert('Using demo data - unable to load real notices', 'warning');
+            }
+        }
+        
+        // Generate demo notices data
+        function generateDemoNotices() {
+            const categories = ['general', 'academic', 'exam', 'event', 'urgent'];
+            const priorities = ['normal', 'important', 'urgent'];
+            
+            const sampleNotices = [
+                {
+                    title: 'Mid-Semester Examination Schedule Released',
+                    description: 'The mid-semester examination schedule for all courses has been released. Please check your registered subjects and exam dates carefully. The exams will begin from next Monday.',
+                    category: 'exam'
+                },
+                {
+                    title: 'Library Hours Extended',
+                    description: 'Due to upcoming exams, the library will remain open 24/7 for the next two weeks. Students can access all study materials and resources.',
+                    category: 'general'
+                },
+                {
+                    title: 'Annual Sports Day - Registration Open',
+                    description: 'Registration is now open for the Annual Sports Day. Various events including cricket, football, badminton, and athletics are available. Last date for registration is this Friday.',
+                    category: 'event'
+                },
+                {
+                    title: 'Fee Payment Deadline Extended',
+                    description: 'The fee payment deadline has been extended by one week due to technical issues with the payment gateway. New deadline is next Monday.',
+                    category: 'urgent'
+                },
+                {
+                    title: 'Guest Lecture on Artificial Intelligence',
+                    description: 'A special guest lecture on "Future of Artificial Intelligence" by Dr. Smith from MIT will be held in the main auditorium this Thursday at 3 PM.',
+                    category: 'academic'
+                },
+                {
+                    title: 'Hostel Maintenance Notice',
+                    description: 'Routine maintenance work will be carried out in hostel blocks A and B this weekend. Water supply may be interrupted for a few hours.',
+                    category: 'general'
+                }
+            ];
+            
+            noticesData = sampleNotices.map((notice, index) => {
+                const createdDate = new Date();
+                createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 10));
+                
+                return {
+                    id: index + 1,
+                    title: notice.title,
+                    description: notice.description,
+                    created_at: createdDate.toISOString(),
+                    category: notice.category,
+                    priority: priorities[Math.floor(Math.random() * priorities.length)],
+                    author: 'Administration Office'
+                };
+            });
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const total = noticesData.length;
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            
+            const newThisWeek = noticesData.filter(notice => 
+                new Date(notice.created_at) > oneWeekAgo
+            ).length;
+            
+            const important = noticesData.filter(notice => 
+                notice.priority === 'important' || notice.category === 'exam'
+            ).length;
+            
+            const urgent = noticesData.filter(notice => 
+                notice.priority === 'urgent' || notice.category === 'urgent'
+            ).length;
+            
+            document.getElementById('total-notices').textContent = total;
+            document.getElementById('new-notices').textContent = newThisWeek;
+            document.getElementById('important-notices').textContent = important;
+            document.getElementById('urgent-notices').textContent = urgent;
+        }
+        
+        // Render notices
+        function renderNotices() {
+            const container = document.getElementById('notices-container');
+            
+            if (noticesData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Notices Available</h4>
+                        <p class="text-muted">Check back later for new announcements</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const filterValue = document.getElementById('category-filter').value;
+            const filteredNotices = noticesData.filter(notice => {
+                if (!filterValue) return true;
+                return notice.category === filterValue || notice.priority === filterValue;
+            });
+            
+            container.innerHTML = filteredNotices
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .map(notice => {
+                    const createdDate = new Date(notice.created_at);
+                    const isNew = (new Date() - createdDate) < (3 * 24 * 60 * 60 * 1000); // 3 days
+                    
+                    let cardClass = 'notice-card';
+                    if (notice.priority === 'urgent' || notice.category === 'urgent') {
+                        cardClass += ' urgent';
+                    } else if (notice.priority === 'important' || notice.category === 'exam') {
+                        cardClass += ' important';
+                    }
+                    
+                    if (isNew) {
+                        cardClass += ' notice-new';
+                    }
+                    
+                    let categoryIcon = 'fas fa-bell';
+                    switch (notice.category) {
+                        case 'academic': categoryIcon = 'fas fa-graduation-cap'; break;
+                        case 'exam': categoryIcon = 'fas fa-file-alt'; break;
+                        case 'event': categoryIcon = 'fas fa-calendar-alt'; break;
+                        case 'urgent': categoryIcon = 'fas fa-exclamation-triangle'; break;
+                    }
+                    
+                    return `
+                        <div class="card ${cardClass}" onclick="viewNotice(${notice.id})">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start mb-3">
+                                    <div class="me-3">
+                                        <i class="${categoryIcon} fa-2x text-primary"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="card-title mb-2">${notice.title}</h5>
+                                        <p class="card-text text-muted">
+                                            ${notice.description.substring(0, 200)}${notice.description.length > 200 ? '...' : ''}
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="notice-meta">
+                                        <i class="fas fa-user"></i> ${notice.author || 'Administration'}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-clock"></i> ${createdDate.toLocaleDateString()}
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-${getTagColor(notice.category)}">${notice.category}</span>
+                                        ${notice.priority === 'urgent' ? '<span class="badge bg-danger ms-1">Urgent</span>' : ''}
+                                        ${notice.priority === 'important' ? '<span class="badge bg-warning ms-1">Important</span>' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+        
+        // Get tag color based on category
+        function getTagColor(category) {
+            const colors = {
+                'general': 'secondary',
+                'academic': 'primary',
+                'exam': 'info',
+                'event': 'success',
+                'urgent': 'danger'
+            };
+            return colors[category] || 'secondary';
+        }
+        
+        // View notice details
+        function viewNotice(noticeId) {
+            const notice = noticesData.find(n => n.id === noticeId);
+            if (!notice) return;
+            
+            const createdDate = new Date(notice.created_at);
+            
+            const detailsHtml = `
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-${getIconByCategory(notice.category)} fa-2x text-primary me-3"></i>
+                            <div>
+                                <h4 class="mb-1">${notice.title}</h4>
+                                <small class="text-muted">
+                                    Posted by ${notice.author || 'Administration'} on ${createdDate.toLocaleDateString()}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 mb-3">
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-${getTagColor(notice.category)}">${notice.category}</span>
+                            ${notice.priority === 'urgent' ? '<span class="badge bg-danger">Urgent</span>' : ''}
+                            ${notice.priority === 'important' ? '<span class="badge bg-warning">Important</span>' : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded">
+                            <div style="white-space: pre-line;">${notice.description}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('notice-details').innerHTML = detailsHtml;
+            new bootstrap.Modal(document.getElementById('noticeModal')).show();
+        }
+        
+        // Get icon by category
+        function getIconByCategory(category) {
+            const icons = {
+                'general': 'bell',
+                'academic': 'graduation-cap',
+                'exam': 'file-alt',
+                'event': 'calendar-alt',
+                'urgent': 'exclamation-triangle'
+            };
+            return icons[category] || 'bell';
+        }
+        
+        // Share notice
+        function shareNotice() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Notice from School',
+                    text: 'Check out this important notice',
+                    url: window.location.href
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                navigator.clipboard.writeText(window.location.href).then(() => {
+                    showAlert('Link copied to clipboard!', 'success');
+                });
+            }
+        }
+        
+        // Filter notices
+        document.getElementById('category-filter').addEventListener('change', function() {
+            renderNotices();
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'student') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadNotices();
+            }
+        });
+    </script>
+</body>
+</html>

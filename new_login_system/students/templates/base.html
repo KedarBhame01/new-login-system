@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Management System{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+        }
+        
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .topbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 0.35rem;
+        }
+        
+        .table th {
+            border-top: none;
+            background-color: var(--light-color);
+        }
+        
+        .modal-header {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .loading.show {
+            display: inline-block;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="d-flex">
+        {% if user_logged_in %}
+        <!-- Sidebar -->
+        <nav class="sidebar col-md-3 col-lg-2 d-md-block collapse" id="sidebar">
+            <div class="position-sticky pt-3">
+                <div class="text-center mb-4">
+                    <h4 class="text-white">
+                        <i class="fas fa-graduation-cap"></i> SMS
+                    </h4>
+                    <small class="text-white-50">Student Management System</small>
+                </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/dashboard/">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    
+                    {% if user_type == 'student' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/profile/">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/fees/">
+                            <i class="fas fa-money-bill"></i> Fees
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/attendance/">
+                            <i class="fas fa-calendar-check"></i> My Attendance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/homework/">
+                            <i class="fas fa-book"></i> Homework
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/student/notices/">
+                            <i class="fas fa-bell"></i> Notices
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if user_type == 'admin' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/students/">
+                            <i class="fas fa-users"></i> Students
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/attendance/">
+                            <i class="fas fa-calendar"></i> Attendance
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/fees/">
+                            <i class="fas fa-dollar-sign"></i> Fee Management
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/calender/">
+                            <i class="fas fa-calendar-alt"></i> Calendar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/homework/">
+                            <i class="fas fa-tasks"></i> Homework
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/main_admin/notice/">
+                            <i class="fas fa-bullhorn"></i> Notices
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="nav-item mt-3">
+                        <a class="nav-link text-danger" href="#" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        {% endif %}
+        
+        <!-- Main Content -->
+        <main class="{% if user_logged_in %}col-md-9 ms-sm-auto col-lg-10{% else %}col-12{% endif %} px-md-4">
+            {% if user_logged_in %}
+            <!-- Topbar -->
+            <div class="topbar d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
+                <h1 class="h3 mb-0 text-gray-800">{% block page_title %}Dashboard{% endblock %}</h1>
+                <div>
+                    <span class="me-3">Welcome, <strong id="user-name"></strong></span>
+                    <span class="badge bg-primary" id="user-type"></span>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Alerts -->
+            <div id="alert-container"></div>
+            
+            <!-- Page Content -->
+            <div class="container-fluid">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Global variables
+        let userInfo = null;
+        
+        // Show loading
+        function showLoading(element) {
+            if (element) {
+                element.classList.add('show');
+            }
+        }
+        
+        // Hide loading
+        function hideLoading(element) {
+            if (element) {
+                element.classList.remove('show');
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null, includeAuth = true) {
+            const headers = {
+                'Content-Type': 'application/json',
+            };
+            
+            if (includeAuth) {
+                const token = localStorage.getItem('auth_token');
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+            }
+            
+            const config = {
+                method: method,
+                headers: headers,
+            };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const token = localStorage.getItem('auth_token');
+            const userType = localStorage.getItem('user_type');
+            const userName = localStorage.getItem('user_name');
+            
+            if (!token && window.location.pathname !== '/student/login/' && window.location.pathname !== '/student/register/') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            
+            if (token) {
+                document.getElementById('user-name').textContent = userName || 'User';
+                document.getElementById('user-type').textContent = userType || 'Student';
+            }
+            
+            return true;
+        }
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('user_type');
+                localStorage.removeItem('user_name');
+                localStorage.removeItem('user_id');
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuth();
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

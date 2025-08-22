@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+import logging
+logger = logging.getLogger(__name__)
 from rest_framework import viewsets
 from .models import Admins
 from .serializers import Admins_serializer
@@ -19,7 +20,88 @@ from drf_yasg import openapi
 
 from utils.base_viewsets import BaseCRUDViewSet
 from utils.base_viewsets import success_response, error_response
-      
+
+def admin_dashboard(request):
+    """Admin dashboard page"""
+    try:
+        return render(request, 'admin-dashboard.html')
+    except Exception as e:
+        logger.error(f"Error loading admin dashboard: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load dashboard'})
+
+def admin_students(request):
+    """Admin students management page"""
+    try:
+        return render(request, 'admin-students.html')
+    except Exception as e:
+        logger.error(f"Error loading admin students page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load students page'})
+
+def admin_fees(request):
+    """Admin fees management page"""
+    try:
+        return render(request, 'admin-fees.html')
+    except Exception as e:
+        logger.error(f"Error loading admin fees page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load fees page'})
+
+def admin_attendance(request):
+    """Admin attendance management page"""
+    try:
+        return render(request, 'admin-attendance.html')
+    except Exception as e:
+        logger.error(f"Error loading admin attendance page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load attendance page'})
+
+def admin_calendar(request):
+    """Admin calendar management page"""
+    try:
+        return render(request, 'admin-calendar.html')
+    except Exception as e:
+        logger.error(f"Error loading admin calendar page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load calendar page'})
+
+def admin_homework(request):
+    """Admin homework management page"""
+    try:
+        return render(request, 'admin-homework.html')
+    except Exception as e:
+        logger.error(f"Error loading admin homework page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load homework page'})
+
+def admin_notices(request):
+    """Admin notices management page"""
+    try:
+        return render(request, 'admin-notices.html')
+    except Exception as e:
+        logger.error(f"Error loading admin notices page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load notices page'})
+
+def admin_calendar(request):
+    """Admin calendar management page"""
+    try:
+        return render(request, 'admin-calendar.html')
+    except Exception as e:
+        logger.error(f"Error loading admin calendar page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load calendar page'})
+
+def admin_homework(request):
+    """Admin homework management page"""
+    try:
+        return render(request, 'admin-homework.html')
+    except Exception as e:
+        logger.error(f"Error loading admin homework page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load homework page'})
+
+def admin_notices(request):
+    """Admin notices management page"""
+    try:
+        return render(request, 'admin-notices.html')
+    except Exception as e:
+        logger.error(f"Error loading admin notices page: {e}")
+        return render(request, 'error.html', {'message': 'Unable to load notices page'})
+    
+    
 class AdminViewSet(BaseCRUDViewSet):
     queryset = Admins.objects.all()
     serializer_class = Admins_serializer

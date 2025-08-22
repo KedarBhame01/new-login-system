@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Inside Dashboard</h1>
+    <button Onclick="logout()">Logout</button>
+    <button Onclick="main_logout()">main Logout</button>
+    <button id="showNoticesBtn">Show Notices</button>
+    <div id="noticesContainer" style="margin-top: 20px;"></div>
+
+</body>
+<script>
+    function logout(){
+        sessionStorage.removeItem('admin')
+        sessionStorage.clear();
+
+        window.location.href = '/student/login/'
+    }
+    function main_logout(){
+        localStorage.removeItem('admin')
+        localStorage.clear();
+
+        window.location.href = '/student/login/'
+    }
+
+    
+    document.getElementById('showNoticesBtn').addEventListener('click', async function() {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        const container = document.getElementById('noticesContainer');
+        container.innerHTML = 'Loading notices...';
+
+        if(!token){
+            container.innerHTML = '<span style="color:red;">No token found. Please login again.</span>';
+            window.location.href = '/student/login';
+        }
+
+        try {
+            const response = await fetch('/main_admin/show_notices/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.status === 401) {
+                container.innerHTML = '<span style="color:red;">Unauthorized. Please login again.</span>';
+                return;
+            }
+
+            if (!response.ok) {
+                container.innerHTML = `Error: ${response.statusText}`;
+                return;
+            }
+
+            const notices = await response.json();
+
+            if (!notices.length) {
+                container.innerHTML = 'No notices found.';
+                return;
+            }
+
+            // Build pretty cards
+            let html = '<div class="notice-list">';
+            notices.forEach(function(notice) {
+                // Adjust field names to match your backend response
+                html += `
+                    <div class="notice-card">
+                        <div class="notice-title">${notice.title}</div>
+                        <div class="notice-desc">${notice.description || notice.descrip || notice.desc || notice.desciption || ''}</div>
+                        <div class="notice-date">
+                            ${notice.created_at ? 
+                            new Date(notice.created_at).toLocaleString()
+                            : ''}
+                        </div>
+                        <br>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+
+        } catch (error) {
+            container.innerHTML = 'Failed to fetch notices.';
+            console.error(error);
+        }
+    });
+
+</script>
+</html>

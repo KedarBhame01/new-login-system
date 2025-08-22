@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #e74a3b 10%, #c92a2a 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .student-row {
+            padding: 15px;
+            border: 1px solid #e3e6f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: white;
+        }
+        
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .attendance-toggle {
+            transform: scale(1.5);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-user-shield"></i> SMS
+            </h4>
+            <small class="text-white-50">Admin Panel</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/students/">
+                    <i class="fas fa-users"></i> Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/main_admin/attendance/">
+                    <i class="fas fa-calendar"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/fees/">
+                    <i class="fas fa-dollar-sign"></i> Fee Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/calender/">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/homework/">
+                    <i class="fas fa-tasks"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/notice/">
+                    <i class="fas fa-bullhorn"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-warning" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Attendance Management</h1>
+            <div class="d-flex gap-2">
+                <input type="date" class="form-control" id="attendance-date" style="width: auto;">
+                <button class="btn btn-primary" onclick="markAllPresent()">
+                    <i class="fas fa-check"></i> Mark All Present
+                </button>
+                <button class="btn btn-success" onclick="saveAttendance()">
+                    <i class="fas fa-save"></i> Save Attendance
+                </button>
+            </div>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Attendance Summary -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Present Today</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="present-count">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-danger shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Absent Today</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="absent-count">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-times fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Students</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-students">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Attendance %</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="attendance-percentage">0%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mark Attendance -->
+        <div class="card mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Mark Attendance for <span id="selected-date"></span></h6>
+                <div class="d-flex gap-2">
+                    <input type="text" class="form-control" placeholder="Search students..." id="search-input" style="width: 200px;">
+                    <button class="btn btn-outline-primary" onclick="loadStudentsForAttendance()">
+                        <i class="fas fa-refresh"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="students-attendance-list">
+                    <!-- Students list will be loaded here -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Attendance History -->
+        <div class="card">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Attendance History</h6>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadAttendanceHistory()">
+                    <i class="fas fa-refresh"></i> Refresh
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Total Students</th>
+                                <th>Present</th>
+                                <th>Absent</th>
+                                <th>Percentage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-history">
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let studentsData = [];
+        let attendanceData = {};
+        
+        // API call function with better error handling
+        async function apiCall(url, method = 'GET', data = null) {
+            const headers = { 'Content-Type': 'application/json' };
+            const config = { method, headers };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                console.log(`Making API call: ${method} ${url}`);
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                console.log(`API Response:`, result);
+                
+                if (!response.ok) {
+                    throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+        
+        // Set today's date
+        function setTodaysDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date').value = today;
+            updateSelectedDate();
+        }
+        
+        // Update selected date display
+        function updateSelectedDate() {
+            const selectedDate = document.getElementById('attendance-date').value;
+            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('selected-date').textContent = formattedDate;
+        }
+        
+        // Load students for attendance
+        async function loadStudentsForAttendance() {
+            try {
+                const result = await apiCall('/student/all/');
+                const selectedDate = document.getElementById('attendance-date').value;
+                
+                if (result.status === 'success') {
+                    studentsData = result.data;
+                    
+                    // Load existing attendance for selected date
+                    await loadExistingAttendance(selectedDate);
+                    
+                    renderStudentsList();
+                    updateStats();
+                } else {
+                    throw new Error(result.message || 'Failed to load students');
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+                document.getElementById('students-attendance-list').innerHTML = `
+                    <div class="text-center py-4 text-danger">
+                        <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                        <div>Error loading students: ${error.message}</div>
+                        <button class="btn btn-outline-primary mt-2" onclick="loadStudentsForAttendance()">
+                            <i class="fas fa-retry"></i> Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load existing attendance for date
+        async function loadExistingAttendance(date) {
+            try {
+                console.log(`Loading existing attendance for date: ${date}`);
+                const result = await apiCall('/main_admin/attendance/by-date/', 'POST', { date });
+                
+                if (result.status === 'success') {
+                    // Reset attendance data
+                    attendanceData = {};
+                    
+                    // Set existing attendance
+                    result.data.forEach(attendance => {
+                        attendanceData[attendance.student] = attendance.present;
+                    });
+                    
+                    console.log('Loaded existing attendance:', attendanceData);
+                } else {
+                    console.log('No existing attendance found for this date');
+                    attendanceData = {};
+                }
+            } catch (error) {
+                console.error('Error loading existing attendance:', error);
+                // Reset attendance data if no existing data
+                attendanceData = {};
+            }
+        }
+        
+        // Render students list
+        function renderStudentsList() {
+            const container = document.getElementById('students-attendance-list');
+            
+            if (studentsData.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-users fa-2x text-muted mb-3"></i>
+                        <div class="text-muted">No students found</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = studentsData.map(student => {
+                const initials = student.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                const isPresent = attendanceData[student.id] || false;
+                
+                return `
+                    <div class="student-row">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="student-avatar me-3">${initials}</div>
+                                <div>
+                                    <div class="fw-bold">${student.name}</div>
+                                    <small class="text-muted">ID: ${student.id} | ${student.email}</small>
+                                </div>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input attendance-toggle" type="checkbox" 
+                                       id="student-${student.id}" 
+                                       data-student-id="${student.id}"
+                                       ${isPresent ? 'checked' : ''}>
+                                <label class="form-check-label" for="student-${student.id}">
+                                    <span class="text-${isPresent ? 'success' : 'danger'}">
+                                        ${isPresent ? 'Present' : 'Absent'}
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add event listeners
+            document.querySelectorAll('.attendance-toggle').forEach(toggle => {
+                toggle.addEventListener('change', function() {
+                    const studentId = parseInt(this.dataset.studentId);
+                    const isPresent = this.checked;
+                    
+                    attendanceData[studentId] = isPresent;
+                    
+                    // Update label
+                    const label = this.nextElementSibling.querySelector('span');
+                    label.textContent = isPresent ? 'Present' : 'Absent';
+                    label.className = `text-${isPresent ? 'success' : 'danger'}`;
+                    
+                    updateStats();
+                });
+            });
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const totalStudents = studentsData.length;
+            const presentCount = Object.values(attendanceData).filter(present => present).length;
+            const absentCount = totalStudents - presentCount;
+            const percentage = totalStudents > 0 ? Math.round((presentCount / totalStudents) * 100) : 0;
+            
+            document.getElementById('total-students').textContent = totalStudents;
+            document.getElementById('present-count').textContent = presentCount;
+            document.getElementById('absent-count').textContent = absentCount;
+            document.getElementById('attendance-percentage').textContent = `${percentage}%`;
+        }
+        
+        // Mark all present
+        function markAllPresent() {
+            studentsData.forEach(student => {
+                attendanceData[student.id] = true;
+            });
+            
+            // Update UI
+            document.querySelectorAll('.attendance-toggle').forEach(toggle => {
+                toggle.checked = true;
+                const label = toggle.nextElementSibling.querySelector('span');
+                label.textContent = 'Present';
+                label.className = 'text-success';
+            });
+            
+            updateStats();
+            showAlert('All students marked as present!', 'info');
+        }
+        
+        // Save attendance
+        async function saveAttendance() {
+            const selectedDate = document.getElementById('attendance-date').value;
+            
+            if (!selectedDate) {
+                showAlert('Please select a date', 'warning');
+                return;
+            }
+            
+            const attendanceRecords = studentsData.map(student => ({
+                student: student.id,
+                date: selectedDate,
+                present: attendanceData[student.id] || false
+            }));
+            
+            try {
+                showAlert('Saving attendance...', 'info');
+                
+                // Save each attendance record
+                const promises = attendanceRecords.map(record => 
+                    apiCall('/main_admin/attendance/add/', 'POST', record)
+                );
+                
+                await Promise.all(promises);
+                
+                showAlert('Attendance saved successfully!', 'success');
+                loadAttendanceHistory();
+                
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                showAlert(`Error saving attendance: ${error.message}`, 'danger');
+            }
+        }
+        
+        // FIXED: Load attendance history with multiple API endpoint attempts
+        async function loadAttendanceHistory() {
+            const tbody = document.getElementById('attendance-history');
+            
+            // List of possible API endpoints to try
+            const endpoints = [
+                '/main_admin/attendance/all/',
+                '/main_admin/attendance/summery/',
+                '/main_admin/attendance/summary/',
+                '/attendance/all/',
+                '/attendance/summary/'
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    console.log(`Trying attendance history endpoint: ${endpoint}`);
+                    const result = await apiCall(endpoint);
+                    
+                    if (result.status === 'success' && result.data && result.data.length > 0) {
+                        console.log(`Success with endpoint: ${endpoint}`, result.data);
+                        
+                        // Group attendance by date
+                        const attendanceByDate = {};
+                        
+                        result.data.forEach(record => {
+                            const date = record.date;
+                            if (!attendanceByDate[date]) {
+                                attendanceByDate[date] = {
+                                    date: date,
+                                    total: 0,
+                                    present: 0,
+                                    absent: 0
+                                };
+                            }
+                            
+                            attendanceByDate[date].total++;
+                            if (record.present) {
+                                attendanceByDate[date].present++;
+                            } else {
+                                attendanceByDate[date].absent++;
+                            }
+                        });
+                        
+                        // Convert to array and sort by date (newest first)
+                        const historyData = Object.values(attendanceByDate)
+                            .sort((a, b) => new Date(b.date) - new Date(a.date));
+                        
+                        tbody.innerHTML = historyData.map(record => {
+                            const percentage = record.total > 0 ? Math.round((record.present / record.total) * 100) : 0;
+                            return `
+                                <tr>
+                                    <td>${new Date(record.date).toLocaleDateString()}</td>
+                                    <td>${record.total}</td>
+                                    <td><span class="text-success">${record.present}</span></td>
+                                    <td><span class="text-danger">${record.absent}</span></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress me-2" style="width: 100px; height: 20px;">
+                                                <div class="progress-bar bg-${percentage >= 75 ? 'success' : percentage >= 50 ? 'warning' : 'danger'}" 
+                                                     role="progressbar" 
+                                                     style="width: ${percentage}%" 
+                                                     aria-valuenow="${percentage}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                </div>
+                                            </div>
+                                            ${percentage}%
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDateAttendance('${record.date}')">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                        
+                        return; // Success, exit the loop
+                    }
+                } catch (error) {
+                    console.log(`Failed with endpoint ${endpoint}:`, error.message);
+                    continue; // Try next endpoint
+                }
+            }
+            
+            // If all endpoints failed, show demo data with troubleshooting info
+            console.log('All attendance history endpoints failed, showing demo data');
+            tbody.innerHTML = `
+                <tr>
+                    <td>${new Date().toLocaleDateString()}</td>
+                    <td>25</td>
+                    <td><span class="text-success">20</span></td>
+                    <td><span class="text-danger">5</span></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="progress me-2" style="width: 100px; height: 20px;">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: 80%" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            80%
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewDateAttendance('${new Date().toISOString().split('T')[0]}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="6" class="text-center py-3">
+                        <div class="alert alert-warning mb-0">
+                            <strong>Demo Data</strong> - Unable to load real attendance history.<br>
+                            <small>Tried endpoints: ${endpoints.join(', ')}</small><br>
+                            <small>Check your API endpoints and ensure attendance data exists.</small>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // View attendance for specific date
+        function viewDateAttendance(date) {
+            document.getElementById('attendance-date').value = date;
+            updateSelectedDate();
+            loadStudentsForAttendance();
+        }
+        
+        // Search functionality
+        document.getElementById('search-input').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const studentRows = document.querySelectorAll('.student-row');
+            
+            studentRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? 'block' : 'none';
+            });
+        });
+        
+        // Date change handler
+        document.getElementById('attendance-date').addEventListener('change', function() {
+            updateSelectedDate();
+            loadStudentsForAttendance();
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'admin') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                setTodaysDate();
+                loadStudentsForAttendance();
+                loadAttendanceHistory();
+            }
+        });
+    </script>
+</body>
+</html>

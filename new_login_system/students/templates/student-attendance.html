@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance - Student</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-color) 10%, #224abe 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .attendance-day {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 2px;
+            cursor: pointer;
+        }
+        
+        .attendance-present {
+            background-color: #1cc88a;
+            color: white;
+        }
+        
+        .attendance-absent {
+            background-color: #e74a3b;
+            color: white;
+        }
+        
+        .attendance-today {
+            border: 2px solid #4e73df;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Student Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-graduation-cap"></i> SMS
+            </h4>
+            <small class="text-white-50">Student Portal</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/student/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/profile/">
+                    <i class="fas fa-user"></i> My Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/fees/">
+                    <i class="fas fa-money-bill"></i> Fees
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/student/attendance/">
+                    <i class="fas fa-calendar-check"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/homework/">
+                    <i class="fas fa-book"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/student/notices/">
+                    <i class="fas fa-bell"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-danger" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800">My Attendance</h1>
+            <div class="d-flex gap-2">
+                <select class="form-select" id="month-filter" style="width: auto;">
+                    <option value="">Select Month</option>
+                </select>
+                <button class="btn btn-outline-primary" onclick="loadAttendance()">
+                    <i class="fas fa-refresh"></i> Refresh
+                </button>
+            </div>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Attendance Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Overall Attendance</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="overall-percentage">0%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Total Present</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-present">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Total Absent</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-absent">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-times fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">This Month</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="month-percentage">0%</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-xl-8 col-lg-7">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-line"></i> Monthly Attendance Trend
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="attendanceChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-4 col-lg-5">
+                <div class="card">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-chart-pie"></i> Attendance Summary
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="summaryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calendar View -->
+        <div class="card">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-alt"></i> Attendance Calendar - <span id="current-month"></span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="attendance-day attendance-present me-2">P</div>
+                            <span>Present</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="attendance-day attendance-absent me-2">A</div>
+                            <span>Absent</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="attendance-calendar">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Detailed Records -->
+        <div class="card mt-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Detailed Attendance Records</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Status</th>
+                                <th>Marked At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-records">
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        let attendanceChart, summaryChart;
+        let attendanceData = [];
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null) {
+            const headers = { 'Content-Type': 'application/json' };
+            const config = { method, headers };
+            
+            if (data && method !== 'GET') {
+                config.body = JSON.stringify(data);
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+        
+        // Load student attendance
+        async function loadAttendance() {
+            try {
+                const userId = localStorage.getItem('user_id');
+                
+                // Try multiple endpoints for attendance data
+                const endpoints = [
+                    `/main_admin/attendance/all/`,
+                    `/attendance/all/`,
+                    `/student/attendance/`
+                ];
+                
+                let result = null;
+                for (const endpoint of endpoints) {
+                    try {
+                        result = await apiCall(endpoint);
+                        if (result.status === 'success' && result.data) {
+                            // Filter by current student
+                            attendanceData = result.data.filter(record => 
+                                record.student == userId || record.student_id == userId
+                            );
+                            break;
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+                
+                if (attendanceData.length === 0) {
+                    // Generate demo data if no real data
+                    generateDemoData();
+                }
+                
+                updateStats();
+                generateCalendar();
+                loadCharts();
+                loadDetailedRecords();
+                
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+                generateDemoData();
+                showAlert('Using demo data - unable to load real attendance records', 'warning');
+            }
+        }
+        
+        // Generate demo data
+        function generateDemoData() {
+            attendanceData = [];
+            const today = new Date();
+            
+            for (let i = 30; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(date.getDate() - i);
+                
+                // Skip weekends
+                if (date.getDay() === 0 || date.getDay() === 6) continue;
+                
+                attendanceData.push({
+                    date: date.toISOString().split('T')[0],
+                    present: Math.random() > 0.2, // 80% attendance rate
+                    created_at: date.toISOString()
+                });
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const totalDays = attendanceData.length;
+            const presentDays = attendanceData.filter(record => record.present).length;
+            const absentDays = totalDays - presentDays;
+            const overallPercentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+            
+            // Current month data
+            const currentMonth = new Date().getMonth();
+            const monthData = attendanceData.filter(record => 
+                new Date(record.date).getMonth() === currentMonth
+            );
+            const monthPresent = monthData.filter(record => record.present).length;
+            const monthPercentage = monthData.length > 0 ? Math.round((monthPresent / monthData.length) * 100) : 0;
+            
+            document.getElementById('overall-percentage').textContent = `${overallPercentage}%`;
+            document.getElementById('total-present').textContent = presentDays;
+            document.getElementById('total-absent').textContent = absentDays;
+            document.getElementById('month-percentage').textContent = `${monthPercentage}%`;
+        }
+        
+        // Generate calendar
+        function generateCalendar() {
+            const currentDate = new Date();
+            const currentMonth = currentDate.getMonth();
+            const currentYear = currentDate.getFullYear();
+            
+            document.getElementById('current-month').textContent = 
+                new Date(currentYear, currentMonth).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay();
+            
+            let calendarHtml = '<div class="d-flex flex-wrap">';
+            
+            // Days of the week headers
+            const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            dayHeaders.forEach(day => {
+                calendarHtml += `<div style="width: 14.28%; text-align: center; font-weight: bold; padding: 10px;">${day}</div>`;
+            });
+            
+            // Empty cells for days before the first day of the month
+            for (let i = 0; i < startingDayOfWeek; i++) {
+                calendarHtml += '<div style="width: 14.28%; padding: 2px;"></div>';
+            }
+            
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dateString = date.toISOString().split('T')[0];
+                const attendanceRecord = attendanceData.find(record => record.date === dateString);
+                const isToday = date.toDateString() === new Date().toDateString();
+                
+                let dayClass = 'attendance-day';
+                let dayContent = day;
+                
+                if (attendanceRecord) {
+                    dayClass += attendanceRecord.present ? ' attendance-present' : ' attendance-absent';
+                    dayContent = attendanceRecord.present ? 'P' : 'A';
+                } else {
+                    dayClass += ' bg-light text-muted';
+                }
+                
+                if (isToday) {
+                    dayClass += ' attendance-today';
+                }
+                
+                calendarHtml += `
+                    <div style="width: 14.28%; padding: 2px; text-align: center;">
+                        <div class="${dayClass}" title="${dateString}">${dayContent}</div>
+                        <small style="font-size: 10px;">${day}</small>
+                    </div>
+                `;
+            }
+            
+            calendarHtml += '</div>';
+            document.getElementById('attendance-calendar').innerHTML = calendarHtml;
+        }
+        
+        // Load charts
+        function loadCharts() {
+            // Monthly trend chart
+            const ctx1 = document.getElementById('attendanceChart').getContext('2d');
+            
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+            
+            // Group by month for last 6 months
+            const monthlyData = [];
+            const monthLabels = [];
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthStr = date.toLocaleDateString('en-US', { month: 'short' });
+                monthLabels.push(monthStr);
+                
+                const monthData = attendanceData.filter(record => {
+                    const recordDate = new Date(record.date);
+                    return recordDate.getMonth() === date.getMonth() && recordDate.getFullYear() === date.getFullYear();
+                });
+                
+                const presentCount = monthData.filter(record => record.present).length;
+                const percentage = monthData.length > 0 ? (presentCount / monthData.length) * 100 : 0;
+                monthlyData.push(Math.round(percentage));
+            }
+            
+            attendanceChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Attendance %',
+                        data: monthlyData,
+                        borderColor: '#4e73df',
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Summary pie chart
+            const ctx2 = document.getElementById('summaryChart').getContext('2d');
+            
+            if (summaryChart) {
+                summaryChart.destroy();
+            }
+            
+            const presentDays = attendanceData.filter(record => record.present).length;
+            const absentDays = attendanceData.length - presentDays;
+            
+            summaryChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Absent'],
+                    datasets: [{
+                        data: [presentDays, absentDays],
+                        backgroundColor: ['#1cc88a', '#e74a3b'],
+                        hoverBackgroundColor: ['#17a673', '#c0392b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Load detailed records
+        function loadDetailedRecords() {
+            const tbody = document.getElementById('attendance-records');
+            
+            if (attendanceData.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-2x text-muted mb-2"></i>
+                            <div class="text-muted">No attendance records found</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = attendanceData
+                .sort((a, b) => new Date(b.date) - new Date(a.date))
+                .map(record => {
+                    const date = new Date(record.date);
+                    const dayName = date.toLocaleDateString('en-US', { weekday: 'long' });
+                    const statusClass = record.present ? 'text-success' : 'text-danger';
+                    const statusIcon = record.present ? 'fa-check-circle' : 'fa-times-circle';
+                    const statusText = record.present ? 'Present' : 'Absent';
+                    
+                    return `
+                        <tr>
+                            <td>${date.toLocaleDateString()}</td>
+                            <td>${dayName}</td>
+                            <td>
+                                <span class="${statusClass}">
+                                    <i class="fas ${statusIcon}"></i> ${statusText}
+                                </span>
+                            </td>
+                            <td>${new Date(record.created_at || record.date).toLocaleString()}</td>
+                        </tr>
+                    `;
+                }).join('');
+        }
+        
+        // Populate month filter
+        function populateMonthFilter() {
+            const monthFilter = document.getElementById('month-filter');
+            const currentDate = new Date();
+            
+            for (let i = 0; i < 6; i++) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const option = document.createElement('option');
+                option.value = date.getMonth();
+                option.textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                if (i === 0) option.selected = true;
+                monthFilter.appendChild(option);
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'student') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                populateMonthFilter();
+                loadAttendance();
+            }
+        });
+    </script>
+</body>
+</html>

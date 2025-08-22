@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework Management - Admin</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light-color);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #e74a3b 10%, #c92a2a 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            z-index: 1000;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 1rem 1.5rem;
+            border-radius: 0.35rem;
+            margin: 0.2rem 1rem;
+            transition: all 0.3s;
+        }
+        
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+        }
+        
+        .homework-card {
+            border-left: 4px solid #4e73df;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+        
+        .homework-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Admin Sidebar -->
+    <nav class="sidebar">
+        <div class="text-center py-4">
+            <h4 class="text-white mb-0">
+                <i class="fas fa-user-shield"></i> SMS
+            </h4>
+            <small class="text-white-50">Admin Panel</small>
+        </div>
+        
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/dashboard/">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/students/">
+                    <i class="fas fa-users"></i> Students
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/attendance/">
+                    <i class="fas fa-calendar"></i> Attendance
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/fees/">
+                    <i class="fas fa-dollar-sign"></i> Fee Management
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/calender/">
+                    <i class="fas fa-calendar-alt"></i> Calendar
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/main_admin/homework/">
+                    <i class="fas fa-tasks"></i> Homework
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/main_admin/notice/">
+                    <i class="fas fa-bullhorn"></i> Notices
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-warning" href="#" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0 text-gray-800">Homework Management</h1>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#homeworkModal">
+                <i class="fas fa-plus"></i> Assign Homework
+            </button>
+        </div>
+        
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+        
+        <!-- Homework Stats -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Homework</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="total-homework">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-book fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-warning shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Active Assignments</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="active-homework">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-info shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">This Week</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="week-homework">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-calendar-week fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Completed</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="completed-homework">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter and Search -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="d-flex gap-3">
+                    <select class="form-select" id="subject-filter" style="width: 200px;">
+                        <option value="">All Subjects</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="English">English</option>
+                        <option value="Biology">Biology</option>
+                    </select>
+                    
+                    <select class="form-select" id="status-filter" style="width: 200px;">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search homework..." id="search-input">
+                    <button class="btn btn-outline-primary" onclick="loadHomework()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Homework List -->
+        <div class="row" id="homework-container">
+            <!-- Homework cards will be loaded here -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading homework...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homework Modal -->
+    <div class="modal fade" id="homeworkModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Assign Homework</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="homeworkForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <input type="hidden" id="homework-id">
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="homework-title" class="form-label">Title</label>
+                                    <input type="text" class="form-control" id="homework-title" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="homework-subject" class="form-label">Subject</label>
+                                    <select class="form-select" id="homework-subject" required>
+                                        <option value="">Select Subject</option>
+                                        <option value="Mathematics">Mathematics</option>
+                                        <option value="Physics">Physics</option>
+                                        <option value="Chemistry">Chemistry</option>
+                                        <option value="English">English</option>
+                                        <option value="Biology">Biology</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="homework-description" class="form-label">Description</label>
+                            <textarea class="form-control" id="homework-description" rows="4" required 
+                                      placeholder="Provide detailed instructions for the homework assignment..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="homework-due-date" class="form-label">Due Date</label>
+                                    <input type="datetime-local" class="form-control" id="homework-due-date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="homework-attachment" class="form-label">Attachment (Optional)</label>
+                                    <input type="file" class="form-control" id="homework-attachment" accept="image/*,.pdf,.doc,.docx">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="homework-notes" class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="homework-notes" rows="2" 
+                                      placeholder="Any additional instructions or notes..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="delete-homework-btn" style="display: none;">Delete</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm me-2" style="display: none;"></span>
+                            Assign Homework
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Homework Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Homework Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="homework-details">
+                    <!-- Details will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="editHomework()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        let homeworkData = [];
+        let currentHomeworkId = null;
+        
+        // API call function
+        async function apiCall(url, method = 'GET', data = null, isFormData = false) {
+            const headers = {};
+            
+            if (!isFormData) {
+                headers['Content-Type'] = 'application/json';
+            }
+            
+            const config = { method, headers };
+            
+            if (data) {
+                if (isFormData) {
+                    config.body = data;
+                } else if (method !== 'GET') {
+                    config.body = JSON.stringify(data);
+                }
+            }
+            
+            try {
+                const response = await fetch(url, config);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.message || 'API call failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+        
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            document.getElementById('alert-container').innerHTML = alertHtml;
+            
+            setTimeout(() => {
+                const alert = document.querySelector('.alert');
+                if (alert) alert.remove();
+            }, 5000);
+        }
+        
+        // Load homework
+        async function loadHomework() {
+            try {
+                // Try multiple endpoints
+                const endpoints = [
+                    '/main_admin/homework/all/',
+                    '/homework/all/'
+                ];
+                
+                let result = null;
+                for (const endpoint of endpoints) {
+                    try {
+                        result = await apiCall(endpoint);
+                        if (result.status === 'success' && result.data) {
+                            homeworkData = result.data;
+                            break;
+                        }
+                    } catch (error) {
+                        continue;
+                    }
+                }
+                
+                if (!homeworkData || homeworkData.length === 0) {
+                    generateDemoHomework();
+                }
+                
+                updateStats();
+                renderHomework();
+                
+            } catch (error) {
+                console.error('Error loading homework:', error);
+                generateDemoHomework();
+                showAlert('Using demo data - unable to load real homework assignments', 'warning');
+            }
+        }
+        
+        // Generate demo homework
+        function generateDemoHomework() {
+            const subjects = ['Mathematics', 'Physics', 'Chemistry', 'English', 'Biology'];
+            const titles = [
+                'Chapter 5 Exercises',
+                'Laboratory Report',
+                'Essay Assignment',
+                'Problem Set 1',
+                'Research Project'
+            ];
+            
+            homeworkData = [];
+            
+            for (let i = 0; i < 6; i++) {
+                const createdDate = new Date();
+                createdDate.setDate(createdDate.getDate() - Math.floor(Math.random() * 5));
+                
+                const dueDate = new Date();
+                dueDate.setDate(dueDate.getDate() + Math.floor(Math.random() * 10) + 1);
+                
+                homeworkData.push({
+                    id: i + 1,
+                    title: `${subjects[i % subjects.length]} - ${titles[i % titles.length]}`,
+                    subject: subjects[i % subjects.length],
+                    description: `Complete the assigned work from the textbook. Show all working steps and provide clear explanations. Submit before the due date.`,
+                    due_date: dueDate.toISOString(),
+                    created_at: createdDate.toISOString(),
+                    status: Math.random() > 0.7 ? 'completed' : 'active',
+                    notes: 'Remember to follow the format discussed in class.'
+                });
+            }
+        }
+        
+        // Update statistics
+        function updateStats() {
+            const total = homeworkData.length;
+            const active = homeworkData.filter(hw => hw.status === 'active').length;
+            const completed = homeworkData.filter(hw => hw.status === 'completed').length;
+            
+            // This week homework
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const thisWeek = homeworkData.filter(hw => 
+                new Date(hw.created_at) > oneWeekAgo
+            ).length;
+            
+            document.getElementById('total-homework').textContent = total;
+            document.getElementById('active-homework').textContent = active;
+            document.getElementById('completed-homework').textContent = completed;
+            document.getElementById('week-homework').textContent = thisWeek;
+        }
+        
+        // Render homework cards
+        function renderHomework() {
+            const container = document.getElementById('homework-container');
+            
+            if (homeworkData.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Homework Assignments</h4>
+                        <p class="text-muted">Create your first homework assignment using the button above</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Apply filters
+            const subjectFilter = document.getElementById('subject-filter').value;
+            const statusFilter = document.getElementById('status-filter').value;
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            const filteredHomework = homeworkData.filter(hw => {
+                const matchesSubject = !subjectFilter || hw.subject === subjectFilter;
+                const matchesStatus = !statusFilter || hw.status === statusFilter;
+                const matchesSearch = !searchTerm || 
+                    hw.title.toLowerCase().includes(searchTerm) ||
+                    hw.description.toLowerCase().includes(searchTerm);
+                
+                return matchesSubject && matchesStatus && matchesSearch;
+            });
+            
+            container.innerHTML = filteredHomework
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                .map(homework => {
+                    const dueDate = new Date(homework.due_date);
+                    const isOverdue = homework.status === 'active' && dueDate < new Date();
+                    const daysDue = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
+                    
+                    let statusBadge = '';
+                    if (homework.status === 'completed') {
+                        statusBadge = '<span class="badge bg-success">Completed</span>';
+                    } else if (isOverdue) {
+                        statusBadge = '<span class="badge bg-danger">Overdue</span>';
+                    } else if (daysDue <= 1) {
+                        statusBadge = '<span class="badge bg-warning">Due Soon</span>';
+                    } else {
+                        statusBadge = '<span class="badge bg-primary">Active</span>';
+                    }
+                    
+                    return `
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card homework-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title mb-0">${homework.title}</h6>
+                                        ${statusBadge}
+                                    </div>
+                                    
+                                    <p class="card-text text-muted small">
+                                        ${homework.description.substring(0, 100)}${homework.description.length > 100 ? '...' : ''}
+                                    </p>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-book"></i> ${homework.subject}
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar"></i> 
+                                            Due: ${dueDate.toLocaleDateString()}
+                                            ${daysDue > 0 ? `(${daysDue} days)` : '(Today)'}
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="d-flex justify-content-between">
+                                        <button class="btn btn-outline-primary btn-sm" onclick="viewHomeworkDetails(${homework.id})">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <div>
+                                            <button class="btn btn-outline-secondary btn-sm" onclick="editHomeworkModal(${homework.id})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm" onclick="deleteHomework(${homework.id})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+        }
+        
+        // View homework details
+        function viewHomeworkDetails(homeworkId) {
+            const homework = homeworkData.find(hw => hw.id === homeworkId);
+            if (!homework) return;
+            
+            currentHomeworkId = homeworkId;
+            
+            const dueDate = new Date(homework.due_date);
+            const createdDate = new Date(homework.created_at);
+            
+            const detailsHtml = `
+                <div class="row">
+                    <div class="col-12">
+                        <h4>${homework.title}</h4>
+                        <div class="mb-3">
+                            <span class="badge bg-info me-2">${homework.subject}</span>
+                            <span class="badge bg-${homework.status === 'completed' ? 'success' : 'primary'}">${homework.status}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <strong>Created Date:</strong><br>
+                        ${createdDate.toLocaleDateString()}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Due Date:</strong><br>
+                        ${dueDate.toLocaleDateString()}
+                    </div>
+                    
+                    <div class="col-12 mt-3">
+                        <strong>Description:</strong><br>
+                        <div class="p-3 bg-light rounded">
+                            ${homework.description}
+                        </div>
+                    </div>
+                    
+                    ${homework.notes ? `
+                        <div class="col-12 mt-3">
+                            <strong>Additional Notes:</strong><br>
+                            <div class="p-3 bg-light rounded">
+                                ${homework.notes}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('homework-details').innerHTML = detailsHtml;
+            new bootstrap.Modal(document.getElementById('detailsModal')).show();
+        }
+        
+        // Edit homework modal
+        function editHomeworkModal(homeworkId) {
+            const homework = homeworkData.find(hw => hw.id === homeworkId);
+            if (!homework) return;
+            
+            // Populate form
+            document.getElementById('homework-id').value = homework.id;
+            document.getElementById('homework-title').value = homework.title;
+            document.getElementById('homework-subject').value = homework.subject;
+            document.getElementById('homework-description').value = homework.description;
+            document.getElementById('homework-due-date').value = new Date(homework.due_date).toISOString().slice(0, 16);
+            document.getElementById('homework-notes').value = homework.notes || '';
+            
+            document.getElementById('delete-homework-btn').style.display = 'inline-block';
+            document.querySelector('.modal-title').textContent = 'Edit Homework';
+            
+            new bootstrap.Modal(document.getElementById('homeworkModal')).show();
+        }
+        
+        // Delete homework
+        async function deleteHomework(homeworkId) {
+            if (!confirm('Are you sure you want to delete this homework assignment?')) {
+                return;
+            }
+            
+            try {
+                const result = await apiCall(`/main_admin/homework/delete/${homeworkId}/`, 'DELETE');
+                
+                if (result.status === 'success') {
+                    showAlert('Homework deleted successfully!', 'success');
+                } else {
+                    // Delete locally for demo
+                    homeworkData = homeworkData.filter(hw => hw.id !== homeworkId);
+                    showAlert('Homework deleted locally (demo mode)', 'success');
+                }
+                
+                updateStats();
+                renderHomework();
+                
+            } catch (error) {
+                console.error('Error deleting homework:', error);
+                // Delete locally for demo
+                homeworkData = homeworkData.filter(hw => hw.id !== homeworkId);
+                updateStats();
+                renderHomework();
+                showAlert('Homework deleted locally (demo mode)', 'success');
+            }
+        }
+        
+        // Form submission
+        document.getElementById('homeworkForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const homeworkId = document.getElementById('homework-id').value;
+            
+            formData.append('title', document.getElementById('homework-title').value);
+            formData.append('subject', document.getElementById('homework-subject').value);
+            formData.append('description', document.getElementById('homework-description').value);
+            formData.append('due_date', document.getElementById('homework-due-date').value);
+            formData.append('notes', document.getElementById('homework-notes').value);
+            
+            const attachment = document.getElementById('homework-attachment').files[0];
+            if (attachment) {
+                formData.append('img1', attachment);
+            }
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spinner = submitBtn.querySelector('.spinner-border');
+            
+            submitBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            
+            try {
+                const url = homeworkId ? `/main_admin/homework/update/${homeworkId}/` : '/main_admin/homework/add/';
+                const method = homeworkId ? 'PUT' : 'POST';
+                
+                const result = await apiCall(url, method, formData, true);
+                
+                if (result.status === 'success') {
+                    showAlert('Homework saved successfully!', 'success');
+                } else {
+                    // Save locally for demo
+                    const homeworkData_local = {
+                        id: homeworkId || Date.now(),
+                        title: document.getElementById('homework-title').value,
+                        subject: document.getElementById('homework-subject').value,
+                        description: document.getElementById('homework-description').value,
+                        due_date: document.getElementById('homework-due-date').value,
+                        notes: document.getElementById('homework-notes').value,
+                        created_at: new Date().toISOString(),
+                        status: 'active'
+                    };
+                    
+                    if (homeworkId) {
+                        const index = homeworkData.findIndex(hw => hw.id == homeworkId);
+                        if (index !== -1) {
+                            homeworkData[index] = { ...homeworkData[index], ...homeworkData_local };
+                        }
+                    } else {
+                        homeworkData.push(homeworkData_local);
+                    }
+                    
+                    showAlert('Homework saved locally (demo mode)', 'success');
+                }
+                
+                bootstrap.Modal.getInstance(document.getElementById('homeworkModal')).hide();
+                this.reset();
+                document.getElementById('homework-id').value = '';
+                document.getElementById('delete-homework-btn').style.display = 'none';
+                
+                updateStats();
+                renderHomework();
+                
+            } catch (error) {
+                console.error('Error saving homework:', error);
+                showAlert('Error saving homework', 'danger');
+            } finally {
+                submitBtn.disabled = false;
+                spinner.style.display = 'none';
+            }
+        });
+        
+        // Delete button
+        document.getElementById('delete-homework-btn').addEventListener('click', function() {
+            const homeworkId = document.getElementById('homework-id').value;
+            if (homeworkId) {
+                bootstrap.Modal.getInstance(document.getElementById('homeworkModal')).hide();
+                deleteHomework(parseInt(homeworkId));
+            }
+        });
+        
+        // Edit from details modal
+        function editHomework() {
+            bootstrap.Modal.getInstance(document.getElementById('detailsModal')).hide();
+            if (currentHomeworkId) {
+                editHomeworkModal(currentHomeworkId);
+            }
+        }
+        
+        // Filter change handlers
+        document.getElementById('subject-filter').addEventListener('change', renderHomework);
+        document.getElementById('status-filter').addEventListener('change', renderHomework);
+        document.getElementById('search-input').addEventListener('input', renderHomework);
+        
+        // Reset modal when closed
+        document.getElementById('homeworkModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('homeworkForm').reset();
+            document.getElementById('homework-id').value = '';
+            document.getElementById('delete-homework-btn').style.display = 'none';
+            document.querySelector('.modal-title').textContent = 'Assign Homework';
+        });
+        
+        // Set minimum due date to tomorrow
+        document.addEventListener('DOMContentLoaded', function() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('homework-due-date').min = tomorrow.toISOString().slice(0, 16);
+        });
+        
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                window.location.href = '/student/login/';
+            }
+        }
+        
+        // Check authentication
+        function checkAuth() {
+            const userType = localStorage.getItem('user_type');
+            if (userType !== 'admin') {
+                window.location.href = '/student/login/';
+                return false;
+            }
+            return true;
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                loadHomework();
+            }
+        });
+    </script>
+</body>
+</html>
