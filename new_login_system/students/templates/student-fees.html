@@ -466,7 +466,7 @@
                     
                     document.getElementById('total-fees').textContent = `₹${student.total_fees || 0}`;
                     document.getElementById('paid-fees').textContent = `₹${student.paid_fees || 0}`;
-                    document.getElementById('pending-fees').textContent = `₹${student.pending_fees || student.total_fees || 0}`;
+                    document.getElementById('pending-fees').textContent = `₹${student.pending_fees || 0}`;
                 }
             } catch (error) {
                 console.error('Error loading student data:', error);

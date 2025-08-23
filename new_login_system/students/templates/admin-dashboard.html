@@ -359,16 +359,16 @@
                 }
                 
                 // Load fees data
-                const feesResult = await apiCall('/student/fees/all/');
+                const feesResult = await apiCall('/student/all/');
                 if (feesResult.status === 'success') {
                     const totalRevenue = feesResult.data
-                        .filter(fee => fee.status === 'success')
-                        .reduce((sum, fee) => sum + fee.amount, 0);
+                        // .filter(fee => fee.status === 'success')
+                        .reduce((sum, fee) => sum + fee.paid_fees, 0);
                     document.getElementById('total-revenue').textContent = `₹${totalRevenue}`;
                     
                     const pendingFees = feesResult.data
-                        .filter(fee => fee.status === 'pending')
-                        .reduce((sum, fee) => sum + fee.amount, 0);
+                        // .filter(fee => fee.status === 'pending')
+                        .reduce((sum, fee) => sum + fee.pending_fees, 0);
                     document.getElementById('pending-fees').textContent = `₹${pendingFees}`;
                 }
                 

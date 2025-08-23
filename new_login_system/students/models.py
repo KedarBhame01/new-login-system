@@ -2,13 +2,19 @@ from django.db import models
 
 # Create your models here.
 class Students(models.Model):
+    ACCOUNT_CHOICES = (
+        ('cash', 'Cash'),
+        ('online', 'Online'),
+    )
+    
     name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=128)
     j_date = models.DateField(default= "2004-10-09")
     phone_no = models.CharField(max_length=15)
     total_fees = models.IntegerField(default= 10000)
-    
+    account = models.CharField(max_length=10, choices=ACCOUNT_CHOICES, default='inactive')
+
     def __str__(self):
         return self.name
     
