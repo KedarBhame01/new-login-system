@@ -5,7 +5,7 @@ class FeeHistory(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
         ('success', 'Success'),
-        ('fail', 'Fail'),
+        ('failed', 'Failed'),
     )
     METHOD_CHOICES = (
         ('cash', 'Cash'),

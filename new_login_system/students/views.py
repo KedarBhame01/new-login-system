@@ -193,7 +193,7 @@ class StudentLoginAPI(ModelViewSet):
                         'phone_no': user.phone_no,
                         'total_fees': user.total_fees,
                         'paid_fees': user.paid_fees,
-                        'pending_fees': user.pending_fees
+                        'pending_fees': user.pending_fees,
 
                     }
                     # 🔹 Add password check with better error handling
@@ -286,11 +286,6 @@ class StudentLoginAPI(ModelViewSet):
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
-
-    def get_queryset(self):
-        # this will return students with paid_fees & pending_fees annotations
-        return Students.objects.with_fee_calculations()
-
 
     def create(self, request, *args, **kwargs):
         try:
