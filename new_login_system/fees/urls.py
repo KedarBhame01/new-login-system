@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 from .views import FeeHistoryAPI
+from . import views
 
 urlpatterns = [
     path('pay/', FeeHistoryAPI.as_view({'post':'pay_fees'})),
@@ -10,6 +11,7 @@ urlpatterns = [
     path('partialupdate/<int:pk>/', FeeHistoryAPI.as_view({'patch': 'partial_update'})),
     path('update/<int:pk>/', FeeHistoryAPI.as_view({'put':'update'})),
     path('delete/<int:pk>/', FeeHistoryAPI.as_view({'delete':'destroy'})),
-    
+    path('dashboard/', FeeHistoryAPI.as_view({'get': 'dashboard_stats'})),
+    path('dashboard-view/', views.dashboard_view, name='fee_dashboard'),
 ]
 

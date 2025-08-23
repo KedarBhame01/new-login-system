@@ -287,6 +287,11 @@ class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer
 
+    def get_queryset(self):
+        # this will return students with paid_fees & pending_fees annotations
+        return Students.objects.with_fee_calculations()
+
+
     def create(self, request, *args, **kwargs):
         try:
             data = request.data

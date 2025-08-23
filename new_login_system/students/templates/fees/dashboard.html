@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fee Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; }
+        .chart-container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>Fee Management Dashboard</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Collected</h3>
+                <p id="total-collected">₹0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Outstanding</h3>
+                <p id="outstanding">₹0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Collection Rate</h3>
+                <p id="collection-rate">0%</p>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Monthly Collections</h3>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>Payment Methods</h3>
+            <canvas id="methodChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Fetch dashboard data and render charts
+        fetch('/fees/dashboard/')
+            .then(response => response.json())
+            .then(data => {
+                const dashboardData = data.data;
+                
+                // Update summary cards
+                document.getElementById('total-collected').textContent = '₹' + dashboardData.summary.total_collected.toLocaleString();
+                document.getElementById('outstanding').textContent = '₹' + dashboardData.summary.outstanding.toLocaleString();
+                document.getElementById('collection-rate').textContent = dashboardData.summary.collection_rate + '%';
+                
+                // Monthly collections chart
+                const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+                new Chart(monthlyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: dashboardData.monthly_collections.map(item => item.month),
+                        datasets: [{
+                            label: 'Collections (₹)',
+                            data: dashboardData.monthly_collections.map(item => item.total),
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    }
+                });
+                
+                // Payment methods chart
+                const methodCtx = document.getElementById('methodChart').getContext('2d');
+                new Chart(methodCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: dashboardData.payment_methods.map(item => item.method),
+                        datasets: [{
+                            data: dashboardData.payment_methods.map(item => item.total),
+                            backgroundColor: ['#FF6384', '#36A2EB']
+                        }]
+                    }
+                });
+            });
+    </script>
+</body>
+</html>

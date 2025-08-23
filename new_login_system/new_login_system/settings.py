@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'calender',
     'homework',
     'notice',
+    'django_filters',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -164,6 +165,9 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     # 'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'AUTHENTICATION_CLASSES': ('students.authentication.JWTAuthentication'),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
 }
 
 SECURE_BROWSER_XSS_FILTER = True
