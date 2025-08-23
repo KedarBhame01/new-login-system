@@ -357,34 +357,46 @@
         // Load fee statistics
         async function loadFeeStats() {
             try {
-                const result = await apiCall('/student/fees/all/');
+                const feesResult = await apiCall('/student/all/');
+                if (feesResult.status === 'success') {
+                    const totalRevenue = feesResult.data
+                        // .filter(fee => fee.status === 'success')
+                        .reduce((sum, fee) => sum + fee.paid_fees, 0);
+                    document.getElementById('total-revenue').textContent = `₹${totalRevenue}`;
+                    
+                    const pendingFees = feesResult.data
+                        // .filter(fee => fee.status === 'pending')
+                        .reduce((sum, fee) => sum + fee.pending_fees, 0);
+                    document.getElementById('pending-fees').textContent = `₹${pendingFees}`;
+                }
+                // const result = await apiCall('/student/fees/all/');
                 
-                if (result.status === 'success') {
-                    const transactions = result.data;
+                // if (result.status === 'success') {
+                //     const transactions = result.data;
                     
-                    // Calculate stats
-                    const totalRevenue = transactions
-                        .filter(t => t.status === 'success')
-                        .reduce((sum, t) => sum + t.amount, 0);
+                //     // Calculate stats
+                //     const totalRevenue = transactions
+                //         .filter(t => t.status === 'success')
+                //         .reduce((sum, t) => sum + t.amount, 0);
                     
-                    const pendingFees = transactions
-                        .filter(t => t.status === 'pending')
-                        .reduce((sum, t) => sum + t.amount, 0);
+                //     const pendingFees = transactions
+                //         .filter(t => t.status === 'pending')
+                //         .reduce((sum, t) => sum + t.amount, 0);
                     
-                    const currentMonth = new Date().getMonth();
-                    const monthRevenue = transactions
-                        .filter(t => t.status === 'success' && new Date(t.payment_date).getMonth() === currentMonth)
-                        .reduce((sum, t) => sum + t.amount, 0);
+                //     const currentMonth = new Date().getMonth();
+                //     const monthRevenue = transactions
+                //         .filter(t => t.status === 'success' && new Date(t.payment_date).getMonth() === currentMonth)
+                //         .reduce((sum, t) => sum + t.amount, 0);
                     
-                    // Update UI
-                    document.getElementById('total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
-                    document.getElementById('pending-fees').textContent = `₹${pendingFees.toLocaleString()}`;
-                    document.getElementById('month-revenue').textContent = `₹${monthRevenue.toLocaleString()}`;
-                    document.getElementById('total-transactions').textContent = transactions.length;
+                //     // Update UI
+                //     document.getElementById('total-revenue').textContent = `₹${totalRevenue.toLocaleString()}`;
+                //     document.getElementById('pending-fees').textContent = `₹${pendingFees.toLocaleString()}`;
+                //     document.getElementById('month-revenue').textContent = `₹${monthRevenue.toLocaleString()}`;
+                    // document.getElementById('total-transactions').textContent = transactions.length;
                     
                     // Load charts
-                    loadCharts(transactions);
-                }
+                    // loadCharts(transactions);
+                // }
             } catch (error) {
                 console.error('Error loading fee stats:', error);
                 showAlert('Error loading fee statistics', 'danger');

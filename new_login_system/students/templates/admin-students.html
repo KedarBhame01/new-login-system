@@ -177,6 +177,22 @@
                     </div>
                 </div>
             </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-success shadow h-100 py-2">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">InActive Students</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="inactive-students">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-slash fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
         <!-- Students Table -->
@@ -202,6 +218,7 @@
                                 <th>Total Fees</th>
                                 <th>Paid Fees</th>
                                 <th>Pending Fees</th>
+                                <th>Account</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -294,6 +311,16 @@
                             <label class="form-label">Total Fees</label>
                             <input type="number" class="form-control" id="edit-fees" name="total_fees" required>
                         </div>
+                        <div class="mb-3">
+                            <!-- Inside your Edit Student modal -->
+                            <label for="editAccountType">Account Type</label>
+                            <select id="editAccountType" name="account" class="form-control">
+                                <option value="active" {% if student.account == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if student.account == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+
+
+                        </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -370,7 +397,11 @@
                 
                 if (result.status === 'success' && result.data.length > 0) {
                     document.getElementById('total-students').textContent = result.data.length;
-                    document.getElementById('active-students').textContent = result.data.length;
+                    const activeCount = result.data.filter(student => student.account === 'active').length;
+                    document.getElementById('active-students').textContent = activeCount;
+
+                    const inactiveCount = result.data.filter(student => student.account === 'inactive').length;
+                    document.getElementById('inactive-students').textContent = inactiveCount;
                     
                     tbody.innerHTML = result.data.map(student => {
                         const initials = student.name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -391,6 +422,7 @@
                                 <td>₹${student.total_fees || 0}</td>
                                 <td>₹${student.paid_fees || 0}</td>
                                 <td>₹${student.pending_fees || 0}</td>
+                                <td>₹${student.account || 0}</td>
                                 <td>
                                     <div class="btn-group">
                                         <button class="btn btn-sm btn-outline-primary" onclick="editStudent(${student.id})">
@@ -475,6 +507,8 @@
                     document.getElementById('edit-email').value = student.email;
                     document.getElementById('edit-phone').value = student.phone_no || '';
                     document.getElementById('edit-fees').value = student.total_fees || 0;
+                    document.getElementById('editAccountType').value = student.account;
+
                     
                     new bootstrap.Modal(document.getElementById('editStudentModal')).show();
                 }
