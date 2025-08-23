@@ -184,14 +184,25 @@ class StudentLoginAPI(ModelViewSet):
             if user_type == 'student':
                 try:
                     user = Students.objects.get(email=email)
-                    
+                    data ={
+                        "user_type": user_type,
+                        "id": user.id,
+                        'name': user.name,
+                        'email': user.email,
+                        'j_date': user.j_date,
+                        'phone_no': user.phone_no,
+                        'total_fees': user.total_fees,
+                        'paid_fees': user.paid_fees,
+                        'pending_fees': user.pending_fees
+
+                    }
                     # 🔹 Add password check with better error handling
                     try:
                         if check_password(password, user.password):
                             logger.info(f"Student login successful for: {email}")
                             return success_response(
                                 "Student login successful",
-                                serializer.data,
+                                data,
                                 code=status.HTTP_200_OK
                             )
                         else:

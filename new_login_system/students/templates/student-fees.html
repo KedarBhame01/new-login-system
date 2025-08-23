@@ -439,11 +439,11 @@
                     loadStudentData();
                     loadFeeHistory();
                 } else {
-                    showAlert(result.message || 'Payment failed. Please try again.');
+                    showAlert(error.message || 'Payment failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Payment error:', error);
-                showAlert('Payment failed. Please check your connection and try again.', 'danger');
+                showAlert(error ||'Payment failed. Please check your connection and try again.' , 'danger');
             } finally {
                 // Hide loading
                 submitBtn.disabled = false;

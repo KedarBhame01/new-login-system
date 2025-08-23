@@ -219,7 +219,7 @@
                     localStorage.setItem('user_type', loginData.type);
                     localStorage.setItem('user_name', result.data?.name || loginData.email);
                     localStorage.setItem('user_email', loginData.email);
-                    localStorage.setItem('user_id', result.data?.user_id);
+                    localStorage.setItem('user_id', result.data?.id);
                     
                     // Show success message
                     showAlert('Login successful! Redirecting...', 'success');
