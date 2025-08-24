@@ -451,6 +451,31 @@
             }
         });
         
+        function displayPaymentStatus(feeHistory) {
+            let statusMessage = `Payment Status: ${feeHistory.status}`;
+            if (feeHistory.status === 'failed') {
+                statusMessage += `\nReason: ${feeHistory.failure_reason_display || 'Not specified'}`;
+                if (feeHistory.admin_remarks) {
+                statusMessage += `\nAdmin Notes: ${feeHistory.admin_remarks}`;
+                }
+            } else if (feeHistory.status === 'success') {
+                statusMessage += `\nApproved by: ${feeHistory.reviewed_by}`;
+                if (feeHistory.admin_remarks) {
+                statusMessage += `\nNotes: ${feeHistory.admin_remarks}`;
+                }
+            }
+            return statusMessage;
+        }
+
+        // After fetching `fees` via your AJAX/templating, render the status:
+        // const feesData = JSON.parse('{{ fees_json|escapejs }}');  // your JSON data injected
+        // feesData.forEach(fee => {
+        // const el = document.getElementById(`status-${fee.id}`);
+        // if (el) {
+        //     el.textContent = displayPaymentStatus(fee);
+        // }
+        // });
+
         // Load student data
         async function loadStudentData() {
             try {
@@ -478,28 +503,30 @@
             try {
                 const result = await apiCall('/student/fees/all/');
                 const tbody = document.getElementById('fee-history-table');
-                
+
                 if (result.status === 'success' && result.data.length > 0) {
                     tbody.innerHTML = result.data.map(payment => `
                         <tr>
-                            <td>${new Date(payment.payment_date).toLocaleDateString()}</td>
-                            <td>₹${payment.amount}</td>
-                            <td><span class="badge bg-info">${payment.method}</span></td>
-                            <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary" onclick="viewPayment(${payment.id})">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </td>
+                        <td>${new Date(payment.payment_date).toLocaleDateString()}</td>
+                        <td>₹${payment.amount}</td>
+                        <td><span class="badge bg-info">${payment.method}</span></td>
+                        <td>
+                            <pre class="mb-0">${payment.status}</pre>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewPayment(${payment.id})">
+                            <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
                         </tr>
                     `).join('');
                 } else {
                     tbody.innerHTML = `
                         <tr>
-                            <td colspan="5" class="text-center py-4">
-                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                                <div class="text-muted">No payment history found</div>
-                            </td>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <div class="text-muted">No payment history found</div>
+                        </td>
                         </tr>
                     `;
                 }
@@ -507,13 +534,14 @@
                 console.error('Error loading fee history:', error);
                 document.getElementById('fee-history-table').innerHTML = `
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-danger">
-                            <i class="fas fa-exclamation-triangle"></i> Error loading payment history
-                        </td>
+                    <td colspan="5" class="text-center py-4 text-danger">
+                        <i class="fas fa-exclamation-triangle"></i> Error loading payment history
+                    </td>
                     </tr>
                 `;
             }
         }
+
         
         // View payment details
         async function viewPayment(paymentId) {
@@ -529,6 +557,9 @@
                             </div>
                             <div class="col-md-6">
                                 <strong>Status:</strong> <span class="status-badge status-${payment.status}">${payment.status}</span>
+                                <pre id="status-{${ payment.id }}"></pre>
+                                
+
                             </div>
                             <div class="col-md-6">
                                 <strong>Method:</strong> ${payment.method}
@@ -542,6 +573,7 @@
                     `;
                     
                     document.getElementById('payment-details').innerHTML = detailsHtml;
+
                     new bootstrap.Modal(document.getElementById('paymentModal')).show();
                 }
             } catch (error) {

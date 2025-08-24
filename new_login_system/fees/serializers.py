@@ -7,7 +7,10 @@ class FeeHistorySerializer(serializers.ModelSerializer):
         model = FeeHistory
         fields = '__all__'
         extra_kwargs = {
-            'amount': {'default': 10000}
+            'amount': {'default': 10000},
+            'admin_remarks': {'read_only': True},
+            'reviewed_date': {'read_only': True},
+            'failure_reason': {'read_only': True}
         }
 
     def to_representation(self, instance):
@@ -19,5 +22,9 @@ class FeeHistorySerializer(serializers.ModelSerializer):
             representation['img1'] = request.build_absolute_uri(instance.img1.url)
         else:
             representation['img1'] = None
-            
+
+        if instance.status == 'failed' and instance.failure_reason:
+            failure_reasons = dict(instance._meta.get_field('failure_reason').choices)
+            representation['failure_reason_display'] = failure_reasons.get(instance.failure_reason)
+               
         return representation 

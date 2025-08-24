@@ -84,6 +84,25 @@ class FeeHistoryAPI(BaseCRUDViewSet):
         except Exception as e:
             return error_response(f"Error creating record: {e}")
 
+    # In fees/views.py - add to FeeHistoryAPI class
+    @action(detail=False, methods=['get'], url_path='my-payments')
+    def my_payments(self, request):
+        """Get payment history for logged-in student"""
+        try:
+            student_id = request.query_params.get('student_id')  # or get from auth
+            if not student_id:
+                return error_response("Student ID required")
+                
+            payments = FeeHistory.objects.filter(student_id=student_id).order_by('-payment_date')
+            serializer = self.get_serializer(payments, many=True)
+            
+            return success_response(
+                "Payment history retrieved",
+                serializer.data
+            )
+        except Exception as e:
+            return error_response(f"Error fetching payments: {e}")
+
 
     @action(detail=False, methods=['get'], url_path='dashboard')
     def dashboard_stats(self, request):
