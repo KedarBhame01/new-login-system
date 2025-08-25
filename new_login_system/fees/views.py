@@ -58,6 +58,10 @@ class FeeHistoryAPI(BaseCRUDViewSet):
                 amount = int(request.data.get('amount', 0))
             except (TypeError, ValueError):
                 return error_response("Invalid amount.", code=status.HTTP_400_BAD_REQUEST)
+            try:
+                method = str(request.data.get('method', 0))
+            except (TypeError, ValueError):
+                return error_response("Invalid method.", code=status.HTTP_400_BAD_REQUEST)
 
             remarks = request.data.get('remarks', '')
             try:
@@ -66,11 +70,12 @@ class FeeHistoryAPI(BaseCRUDViewSet):
                 return error_response("Student not found.", code=status.HTTP_404_NOT_FOUND)
 
             # Strict amount check - amount must equal pending_fees
-            if amount != student.pending_fees:
-                return error_response(
-                    f"Payment must be exactly the pending fees: {student.pending_fees}",
-                    code=status.HTTP_400_BAD_REQUEST
-                )
+            if(method == 'online'):
+                if amount != student.pending_fees:
+                    return error_response(
+                        f"Payment must be exactly the pending fees: {student.pending_fees}",
+                        code=status.HTTP_400_BAD_REQUEST
+                    )
 
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
