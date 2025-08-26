@@ -18,4 +18,9 @@ class student_login_serializer(serializers.Serializer):
     # type = serializers.CharField(choices=[('admin','admin'),('student','student')],required=True)
     type = serializers.ChoiceField(choices=['admin', 'student'])
     
-    
+class student_search_serializer(serializers.Serializer):   
+    search_term = serializers.CharField(required=True)
+    search_in = serializers.ChoiceField(
+        choices=['name', 'email', 'phone_no', 'account','total_fees','j_date']
+        # default='all'
+    )

@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from .serializers import StudentSerializer, student_login_serializer
+from django.db.models import Q
+from .serializers import StudentSerializer, student_login_serializer,student_search_serializer
 from django.contrib.auth.hashers import make_password, check_password
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,filters
 # from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -290,8 +291,58 @@ class StudentLoginAPI(ModelViewSet):
 
 class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
-    serializer_class = StudentSerializer
+    serializer_class = StudentSerializer 
+    
+    filter_backends = [filters.SearchFilter]
+    # search_fields can include any model fields or related fields:
+    search_fields = [
+        'name',
+        'email',
+        'phone_no',
+        'account',
+        'total_fees',
+    ]       
+    def get_serializer_class(self):
+        if self.action == 'search':
+            return student_search_serializer
+        return super().get_serializer_class()
+    # @swagger_auto_schema(request_body=student_search_serializer)
+    @action(detail=False, methods=['post'], url_path='search')
+    def search(self, request, *args, **kwargs):
+          try:
+               search_term = request.data.get('search_term')
+               if not search_term:
+                    return Response({"message": "Please provide a search term"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+               search_in = request.data.get('search_in').lower()
+               
+               # Perform case-insensitive search by fieldname
+            #    search_results = Students.objects.filter(
+            #         Q(search_in=search_term))
+               search_results = Students.objects.none()
+               if search_in == 'name':
+                search_results = Students.objects.filter(name=search_term)
+               elif search_in == 'email':
+                search_results = Students.objects.filter(email=search_term)
+               elif search_in == 'phone_no':
+                search_results = Students.objects.filter(phone_no=search_term)
+               elif search_in == 'account':
+                    search_results = Students.objects.filter(account=search_term)
+               elif search_in == 'total_fees':
+                    search_results = Students.objects.filter(total_fees=search_term)
+               elif search_in == 'j_date':
+                    search_results = Students.objects.filter(j_date=search_term)
+               
+               if not search_results.exists():
+                return error_response(
+                f"No students found matching '{search_term}' in {search_in}"
+                )
+               serializer = StudentSerializer(search_results, many=True)
 
+               return success_response("Search results", serializer.data)
+          except Exception as e:
+               return error_response(f"Error searching students: {e}")   
+    
     def create(self, request, *args, **kwargs):
         try:
             data = request.data
@@ -323,6 +374,4 @@ class student_API(BaseCRUDViewSet):
         except Exception as e:
             logger.error(f"Error creating student: {e}")
             return error_response('Registration failed. Please try again later.', code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        
-        
+            

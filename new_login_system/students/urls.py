@@ -14,6 +14,7 @@ urlpatterns = [
     path('update/<int:pk>/', student_API.as_view({'put':'update'})),
     path('delete/<int:pk>/', student_API.as_view({'delete':'destroy'})),
     path('login_api/', StudentLoginAPI.as_view({'post':'login'})),
+    path('search/', student_API.as_view({'post':'search'})),
     
     # Web pages (new)
     path('login/', views.login_page, name='login_page'),
