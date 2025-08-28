@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from .models import Attendance
-from .serializers import AttendanceSerializer, AttendanceSummaryInputSerializer, DateOnlySerializer
+from .serializers import AttendanceSerializer, AttendanceSummaryInputSerializer, DateOnlySerializer, Attendance_by_student_id_serializer
 from rest_framework import status
 from rest_framework.response import Response
 from utils.base_viewsets import success_response, error_response
@@ -23,6 +23,38 @@ class AttendanceViewset(BaseCRUDViewSet):
     queryset = Attendance.objects.all()
     serializer_class = AttendanceSerializer
 
+    @swagger_auto_schema(
+        methods=['post'],
+        request_body=Attendance_by_student_id_serializer,
+        responses={200: AttendanceSerializer(many=True)}
+    ) 
+    @action(detail=False, methods=['post'], url_path='by_student_id')
+    def by_student_id(self, request, *args, **kwargs):
+            try:
+                search_term = request.data.get('id')
+                if not search_term:
+                        return Response({"message": "Please provide a student_id"},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                # search_in = request.data.get('search_in').lower()
+                
+                # Perform case-insensitive search by fieldname
+                #    search_results = Students.objects.filter(
+                #         Q(search_in=search_term))
+                # search_results = Attendance.objects.none()
+                
+                search_results = self.queryset.filter(student_id=search_term)
+               
+                
+                if not search_results.exists():
+                    return error_response(
+                    f"No attendance found matching this student_id '{search_term}'"
+                    )
+                serializer = AttendanceSerializer(search_results, many=True)
+
+                return success_response("Search results", serializer.data)
+            except Exception as e:
+                return error_response(f"Error searching in attendance: {e}")   
+    
     @swagger_auto_schema(
         methods=['post'],
         request_body= AttendanceSummaryInputSerializer,

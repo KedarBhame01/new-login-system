@@ -17,4 +17,7 @@ class AttendanceSummaryInputSerializer(serializers.Serializer):
             fields = 'student_id'
 
 class DateOnlySerializer(serializers.Serializer):
-    date = serializers.DateField()
+    date = serializers.DateField(required=True)
+
+class Attendance_by_student_id_serializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)

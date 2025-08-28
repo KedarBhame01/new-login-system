@@ -22,5 +22,4 @@ class student_search_serializer(serializers.Serializer):
     search_term = serializers.CharField(required=True)
     search_in = serializers.ChoiceField(
         choices=['name', 'email', 'phone_no', 'account','total_fees','j_date']
-        # default='all'
     )

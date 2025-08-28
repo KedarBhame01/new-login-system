@@ -5,7 +5,7 @@ class Attendance(models.Model):
     student = models.ForeignKey(Students, related_name= "attendances", on_delete=models.CASCADE)
     date = models.DateField(auto_now_add=False)
     present = models.BooleanField(default = False)
-    created_at = models.DateTimeField(auto_now_add = True)
+    # created_at = models.DateTimeField(auto_now_add = True)
     
     class Meta:
         unique_together = ('student','date')

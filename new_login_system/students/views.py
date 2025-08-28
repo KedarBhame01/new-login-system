@@ -293,55 +293,46 @@ class student_API(BaseCRUDViewSet):
     queryset = Students.objects.all()
     serializer_class = StudentSerializer 
     
-    filter_backends = [filters.SearchFilter]
-    # search_fields can include any model fields or related fields:
-    search_fields = [
-        'name',
-        'email',
-        'phone_no',
-        'account',
-        'total_fees',
-    ]       
-    def get_serializer_class(self):
-        if self.action == 'search':
-            return student_search_serializer
-        return super().get_serializer_class()
-    # @swagger_auto_schema(request_body=student_search_serializer)
+    @swagger_auto_schema(
+        methods=['post'],
+        request_body=student_search_serializer,
+        responses={200: StudentSerializer(many=True)}
+    )
     @action(detail=False, methods=['post'], url_path='search')
     def search(self, request, *args, **kwargs):
-          try:
-               search_term = request.data.get('search_term')
-               if not search_term:
-                    return Response({"message": "Please provide a search term"},
-                                    status=status.HTTP_400_BAD_REQUEST)
-               search_in = request.data.get('search_in').lower()
-               
-               # Perform case-insensitive search by fieldname
-            #    search_results = Students.objects.filter(
-            #         Q(search_in=search_term))
-               search_results = Students.objects.none()
-               if search_in == 'name':
-                search_results = Students.objects.filter(name=search_term)
-               elif search_in == 'email':
-                search_results = Students.objects.filter(email=search_term)
-               elif search_in == 'phone_no':
-                search_results = Students.objects.filter(phone_no=search_term)
-               elif search_in == 'account':
-                    search_results = Students.objects.filter(account=search_term)
-               elif search_in == 'total_fees':
-                    search_results = Students.objects.filter(total_fees=search_term)
-               elif search_in == 'j_date':
-                    search_results = Students.objects.filter(j_date=search_term)
-               
-               if not search_results.exists():
-                return error_response(
-                f"No students found matching '{search_term}' in {search_in}"
-                )
-               serializer = StudentSerializer(search_results, many=True)
+            try:
+                search_term = request.data.get('search_term')
+                if not search_term:
+                        return Response({"message": "Please provide a search term"},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                search_in = request.data.get('search_in').lower()
+                
+                # Perform case-insensitive search by fieldname
+                #    search_results = Students.objects.filter(
+                #         Q(search_in=search_term))
+                search_results = Students.objects.none()
+                if search_in == 'name':
+                        search_results = Students.objects.filter(name=search_term)
+                elif search_in == 'email':
+                        search_results = Students.objects.filter(email=search_term)
+                elif search_in == 'phone_no':
+                        search_results = Students.objects.filter(phone_no=search_term)
+                elif search_in == 'account':
+                        search_results = Students.objects.filter(account=search_term)
+                elif search_in == 'total_fees':
+                        search_results = Students.objects.filter(total_fees=search_term)
+                elif search_in == 'j_date':
+                        search_results = Students.objects.filter(j_date=search_term)
+                
+                if not search_results.exists():
+                    return error_response(
+                    f"No students found matching '{search_term}' in {search_in}"
+                    )
+                serializer = StudentSerializer(search_results, many=True)
 
-               return success_response("Search results", serializer.data)
-          except Exception as e:
-               return error_response(f"Error searching students: {e}")   
+                return success_response("Search results", serializer.data)
+            except Exception as e:
+                return error_response(f"Error searching students: {e}")   
     
     def create(self, request, *args, **kwargs):
         try:

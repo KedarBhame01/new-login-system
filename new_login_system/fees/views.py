@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .serializers import FeeHistorySerializer
+from .serializers import FeeHistorySerializer, fees_search_serializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,6 +7,7 @@ from rest_framework import status
 from .models import FeeHistory
 from students.models import Students
 # JWT authentication class
+from drf_yasg.utils import swagger_auto_schema
 
 from utils.base_viewsets import BaseCRUDViewSet
 from utils.base_viewsets import success_response, error_response
@@ -31,6 +32,48 @@ class FeeHistoryAPI(BaseCRUDViewSet):
     pagination_class = FeeHistoryPagination
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status', 'method', 'student_id']
+
+    @swagger_auto_schema(
+        methods=['post'],
+        request_body=fees_search_serializer,
+        responses={200: FeeHistorySerializer(many=True)}
+    )
+    @action(detail=False, methods=['post'], url_path='search')
+    def search(self, request, *args, **kwargs):
+            try:
+                search_term = request.data.get('search_term')
+                if not search_term:
+                        return Response({"message": "Please provide a search term"},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                search_in = request.data.get('search_in').lower()
+                
+                # Perform case-insensitive search by fieldname
+                #    search_results = Students.objects.filter(
+                #         Q(search_in=search_term))
+                search_results = Students.objects.none()
+                if search_in == 'amount':
+                        search_results = Students.objects.filter(amount=search_term)
+                elif search_in == 'payment_date':
+                        search_results = Students.objects.filter(payment_date=search_term)
+                elif search_in == 'status':
+                        search_results = Students.objects.filter(status=search_term)
+                elif search_in == 'method':
+                        search_results = Students.objects.filter(method=search_term)
+                elif search_in == 'student_id':
+                        search_results = Students.objects.filter(student_id_id=search_term)
+                elif search_in == 'reviewed_date':
+                        search_results = Students.objects.filter(reviewed_date=search_term)
+                
+                if not search_results.exists():
+                    return error_response(
+                    f"No entry found matching '{search_term}' in {search_in}"
+                    )
+                serializer = FeeHistorySerializer(search_results, many=True)
+
+                return success_response("Search results", serializer.data)
+            except Exception as e:
+                return error_response(f"Error searching in fees: {e}")   
+    
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -94,7 +137,7 @@ class FeeHistoryAPI(BaseCRUDViewSet):
     def my_payments(self, request):
         """Get payment history for logged-in student"""
         try:
-            student_id = request.query_params.get('student_id')  # or get from auth
+            student_id = request.data.get('student_id')  # or get from auth
             if not student_id:
                 return error_response("Student ID required")
                 

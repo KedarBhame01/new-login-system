@@ -5,6 +5,8 @@ from . import views
 
 urlpatterns = [
     path('pay/', FeeHistoryAPI.as_view({'post':'pay_fees'})),
+    path('search/', FeeHistoryAPI.as_view({'post':'search'})),
+    # path('my_payments/', FeeHistoryAPI.as_view({'post':'my_payments'})),
     # path('add/', FeeHistoryAPI.as_view({'post':'create'})),
     path('all/', FeeHistoryAPI.as_view({'get':'list'})),
     path('details/<int:pk>/', FeeHistoryAPI.as_view({'get':'retrieve'})),

@@ -10,4 +10,5 @@ urlpatterns = [
     path('delete/<int:pk>/', AttendanceViewset.as_view({'delete':'destroy'})),
     path('by-date/', AttendanceViewset.as_view({'post':'by_date'})),
     path('summery/', AttendanceViewset.as_view({'post':'attendance_summary'})),
+    path('by_student_id/', AttendanceViewset.as_view({'post':'by_student_id'})),
 ]

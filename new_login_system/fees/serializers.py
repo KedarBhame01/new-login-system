@@ -28,3 +28,9 @@ class FeeHistorySerializer(serializers.ModelSerializer):
             representation['failure_reason_display'] = failure_reasons.get(instance.failure_reason)
                
         return representation 
+
+class fees_search_serializer(serializers.Serializer):   
+    search_term = serializers.CharField(required=True)
+    search_in = serializers.ChoiceField(
+        choices=[" amount, payment_date, status, method, student_id_id, reviewed_date"]
+    )
