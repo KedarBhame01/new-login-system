@@ -32,5 +32,11 @@ class FeeHistorySerializer(serializers.ModelSerializer):
 class fees_search_serializer(serializers.Serializer):   
     search_term = serializers.CharField(required=True)
     search_in = serializers.ChoiceField(
-        choices=[" amount, payment_date, status, method, student_id_id, reviewed_date"]
+        choices=['amount', 'payment_date', 'status', 'method', 'student_id', 'reviewed_date']
     )
+
+class fees_search_result_serializer(serializers.Serializer):
+    class Meta:
+        model = FeeHistory
+        fields = 'amount', 'payment_date', 'status', 'method', 'student_id', 'reviewed_date'
+        
