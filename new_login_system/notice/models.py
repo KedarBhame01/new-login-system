@@ -15,8 +15,8 @@ class Notices(models.Model):
         ('urgent',    'Urgent'),
     ]
     STATUS_CHOICES = [
-        ('draft',     'Draft'),
         ('published', 'Published'),
+        ('draft',     'Draft'),
     ]
     title = models.CharField(max_length=255)
     description = models.TextField()

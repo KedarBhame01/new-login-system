@@ -36,7 +36,7 @@ class FeeHistoryAPI(BaseCRUDViewSet):
     @swagger_auto_schema(
         methods=['post'],
         request_body=fees_search_serializer,
-        responses={200: fees_search_result_serializer(many=True)}
+        responses={200: FeeHistorySerializer(many=True)}
     )
     @action(detail=False, methods=['post'], url_path='search')
     def search(self, request, *args, **kwargs):

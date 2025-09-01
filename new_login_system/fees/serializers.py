@@ -38,5 +38,5 @@ class fees_search_serializer(serializers.Serializer):
 class fees_search_result_serializer(serializers.Serializer):
     class Meta:
         model = FeeHistory
-        fields = 'amount', 'payment_date', 'status', 'method', 'student_id', 'reviewed_date'
+        fields = 'student_id','amount', 'payment_date', 'status', 'method', 'reviewed_date'
         

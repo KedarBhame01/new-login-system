@@ -8,12 +8,13 @@ class FeeHistory(models.Model):
         ('failed', 'Failed'),
     )
     METHOD_CHOICES = (
-        ('cash', 'Cash'),
         ('online', 'Online'),
+        ('cash', 'Cash'),
     )
     student_id = models.ForeignKey("students.Students", on_delete=models.CASCADE)
     amount = models.IntegerField()
-    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_date = models.DateField(auto_now_add=True)
+    payment_time = models.TimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255, blank=True)
     img1 = models.ImageField(upload_to='feehistory_images/', blank=True, null=True)    
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')

@@ -86,19 +86,19 @@ WSGI_APPLICATION = 'new_login_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'new_login_system',
-        'USER': 'root',
-        'PASSWORD': '@Djangostar123',
-        'HOST':'localhost',
-        'PORT':'3306',
-
         # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'KedarBhame$new_login_system',
-        # 'USER': 'KedarBhame',
+        # 'NAME': 'new_login_system',
+        # 'USER': 'root',
         # 'PASSWORD': '@Djangostar123',
-        # 'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
+        # 'HOST':'localhost',
         # 'PORT':'3306',
+
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'KedarBhame$new_login_system',
+        'USER': 'KedarBhame',
+        'PASSWORD': '@Djangostar123',
+        'HOST':'KedarBhame.mysql.pythonanywhere-services.com',
+        'PORT':'3306',
         
     }
 }
