@@ -33,52 +33,6 @@ def register_page(request):
 
 def dashboard_page(request):
     return render(request,'dashboard.html')
-# class StudentLoginAPI(ModelViewSet):
-#     queryset = Students.objects.all()
-#     serializer_class = student_login_serializer
-    
-#     @swagger_auto_schema(request_body=student_login_serializer)
-#     def login(self,request, *args, **kwargs):
-        
-#         serializer = self.serializer_class(data=request.data)
-#         if serializer.is_valid():
-#             user_type = serializer.validated_data.get('type')
-
-#             if user_type == 'student':
-#                 email = serializer.validated_data.get('email')
-#                 password = serializer.validated_data.get('password')
-#                 try:
-#                     user = Students.objects.get(email=email)
-#                     if check_password(password, user.password):
-#                         return success_response("Student login successfully",
-#                                     serializer.data,
-#                                     code=status.HTTP_200_OK)
-#                     else:
-#                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
-#                 except Students.DoesNotExist:
-#                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
-                
-#             elif user_type == 'admin':
-#                 # return Response({'message': 'cheack admin or not'},)
-#                 email = serializer.validated_data.get('email')
-#                 password = serializer.validated_data.get('password')
-#                 try:
-#                     user = Admins.objects.get(email=email)
-#                     if check_password(password, user.password):
-#                         return success_response("Admin login successfully",
-#                                     serializer.data,
-#                                     code=status.HTTP_200_OK)
-#                     else:
-#                         return error_response('Invalid password', code=status.HTTP_400_BAD_REQUEST)
-#                 except Admins.DoesNotExist:
-#                     return error_response('Invalid email', code=status.HTTP_400_BAD_REQUEST)
-
-#             else :
-#                 return error_response('Invalid type select "admin" or "student"',code=status.HTTP_400_BAD_REQUEST)
-
-#         return error_response(serializer.errors, code=status.HTTP_400_BAD_REQUEST)
-  
-# Add these new view functions to your students/views.py (keep existing code)
 
 def profile_page(request):
     """Student profile page"""
